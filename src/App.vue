@@ -21,6 +21,7 @@ export default {
       const tokenJson=computed(()=>tokenStore.getToken)
       const username=computed(()=>userStore.getUsername)
       const session=computed(()=>sessionStore.getSession)
+      const avatar=username.value.charAt(0).toUpperCase()
 
       onMounted(()=>{
         checkSessionValidity(username.value)
@@ -32,7 +33,8 @@ export default {
         drawer,
         tokenJson,
         userStore,
-        session
+        session,
+        avatar
       }
     },
 
@@ -51,19 +53,34 @@ export default {
       </template>
       
       <v-app-bar-title>Labpro</v-app-bar-title>
-      <v-spacer></v-spacer>
-
-        <v-btn icon>
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-
-        <v-btn icon>
-          <v-icon>mdi-heart</v-icon>
-        </v-btn>
-
-        <v-btn @click.stop="" icon>
-          <v-icon>mdi-dots-vertical</v-icon>
-        </v-btn>
+      <v-spacer></v-spacer>        
+        <v-menu v-if="session">
+          <template v-slot:activator="{props}">
+            <v-avatar v-bind="props" id="avatar" color="red" class="mr-1" >
+              <span class="text-h5">{{ avatar }}</span>
+            </v-avatar>
+          </template>
+          <v-list>
+              <v-list-item
+                :key="1"
+                :value="1"
+                prepend-icon="mdi-account-badge"
+                to="/account"
+              >
+                <v-list-item-title>{{ $t('navigation.account') }}</v-list-item-title>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-list-item
+                :key="2"
+                :value="2"
+                prepend-icon="mdi-rss"
+                :link="true"
+                to="/feedback"
+              >
+                <v-list-item-title >{{ $t('navigation.feedback') }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+        </v-menu>
     </v-app-bar>
     <v-navigation-drawer v-if="session" v-model="drawer" expand-on-hover rail>
         <v-list>
@@ -90,3 +107,9 @@ export default {
     </v-sheet>
   </v-app>
 </template>
+
+<style>
+#avatar{
+  cursor: pointer;
+}
+</style>

@@ -31,6 +31,26 @@ const router = createRouter({
       path:'/404',
       name:'404',
       component:()=> import('../views/login/404View.vue')
+    },
+    {
+      path:'/account',
+      name:'account',
+      component:()=> import('../views/account/AccountView.vue')
+    },
+    {
+      path:'/dashboard',
+      name:'dashboard',
+      component:()=> import('../views/account/DashboardView.vue')
+    },
+    {
+      path:'/password',
+      name:'password',
+      component:()=> import('../views/account/ChangePasswordView.vue')
+    },
+    {
+      path:'/feedback',
+      name:'feedback',
+      component:()=> import('../views/account/FeedbackView.vue')
     }
   ]
 })

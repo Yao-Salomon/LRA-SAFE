@@ -1,7 +1,7 @@
 import axios from "axios";
 import QueryString from "qs";
 import { useSessionStore } from "../stores/session";
-import { useUserSTore } from "@/stores/user";
+import { useUserSTore } from "../stores/user";
 import { useRouter } from 'vue-router'
 const DEBUG=import.meta.env.VITE_DEBUG
 const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
@@ -29,10 +29,8 @@ let config = {
 
 
 export async function logUserIn(username:string,password:string){
-
-    const router=useRouter()
-
-    axios.request(config)
+    
+   const response=await  axios.request(config)
     .then((response) => {
         let token=response.data.access_token
         let dataLogin = {
@@ -50,33 +48,24 @@ export async function logUserIn(username:string,password:string){
         data : dataLogin
         };
         
-        axios.request(configLogin)
+        const loginResponse=axios.request(configLogin)
         .then((object) => {
           const sessionStore=useSessionStore();
           const userStore=useUserSTore();
           const serviceResponse=object.data.response
           const user=object.data.user
-          
-          
-          if(serviceResponse.status==200){
-            userStore.reset()
-            userStore.setUsername(user.username)
-            sessionStore.setSession(true)
-            console.log("case Authenticated")
-            router.push('/')
-          }else{
-            console.log("case session Expired")
-            sessionStore.setSession(false)
-            router.push({ name: '/Login', params: { status: serviceResponse.status } })
-          }
-          
+        
+          return object.data;  
         })
         .catch((error) => {
           console.log(error);
         });
-
+        return loginResponse;
     })
     .catch((error) => {
-        router.push('/')
+       // router.push('/')
     });
+
+    return response;
+
 }

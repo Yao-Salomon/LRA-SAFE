@@ -18,8 +18,14 @@ i18next
                 signInButton:"SIGN IN",
                 signUpButton:"SEND A REQUEST",
                 username:"Username",
-                password:"Password"
-          }
+                password:"Password",
+                badCredentials:"Your credentials are bad! Try again.",
+                closeCaption:"Close"
+          },
+          navigation:{
+            account:"Your account",
+            feedback:"Make a complaint"
+        }
         }
       },
       fr:{
@@ -32,7 +38,13 @@ i18next
                 signInButton:"S'INSCRIRE",
                 signUpButton:"FAIRE LA DEMANDE",
                 username:"Nom d'utilisateur",
-                password:"Mot de passe"
+                password:"Mot de passe",
+                badCredentials:"Vos idendifiants sont incorrects! Veuillez réessayer",
+                closeCaption:"Fermer"
+            },
+            navigation:{
+                account:"Votre compte",
+                feedback:"Emettre une plainte"
             }
         }
       }

@@ -3,6 +3,9 @@
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
     import {logUserIn} from '../../services/loginServices';
+    import { useSessionStore } from '@/stores/session';
+    import { useUserSTore } from '@/stores/user';
+    import {useTranslation} from "i18next-vue";
 
 export default{
     created () {
@@ -10,10 +13,20 @@ export default{
     setup(){
         const form:any=ref(null)
         const router=useRouter()
+        const {i18next,t}=useTranslation();
+
+        0
+        const userStore=useUserSTore()
+        const sessionStore=useSessionStore()
+
         const username=ref("")
         const password=ref("")
         const passwordVisible=ref(true)
+        const badCredentials=ref(false)
         const type=ref("password")
+        const loggingIn=ref(false)
+        const snackBarVisibility=ref(false)
+        const snackBarText=ref('')
 
         function toggleMarker(){
             passwordVisible.value=!passwordVisible.value
@@ -23,13 +36,33 @@ export default{
                 type.value=""
             }
         }
+        onMounted(()=>{
+            
+        })
         function navigateToRoute(route:string){
             router.push(route);
         }
         async function validateForm(){
-           const {valid}=await form.value.validate()
+            
+            const {valid}=await form.value.validate()
            if(valid){
-                logUserIn(username.value,password.value)
+            loggingIn.value=true
+            const serviceResponse=await logUserIn(username.value,password.value)
+            if(serviceResponse.response.status==200){
+
+                userStore.reset()
+                badCredentials.value=false
+                userStore.setUsername(serviceResponse.user.username)
+                sessionStore.setSession(true)
+                loggingIn.value=false
+                router.push('/')
+            }else{
+                userStore.reset()
+                badCredentials.value=true
+                loggingIn.value=false
+                snackBarText.value=t("forms.badCredentials")
+                snackBarVisibility.value=true
+            }
            }
         }
         return{
@@ -40,7 +73,11 @@ export default{
             toggleMarker,
             validateForm,
             form,
-            navigateToRoute
+            navigateToRoute,
+            badCredentials,
+            loggingIn,
+            snackBarText,
+            snackBarVisibility
         }
     }
     
@@ -100,7 +137,16 @@ export default{
             ></v-text-field>
 
             <br>
-
+            <v-progress-linear
+            color="deep-purple-accent-4"
+            class="mb-1"
+            :active="loggingIn"
+            :indeterminate="loggingIn"
+            absolute
+            bottom
+            rounded
+            height="5"
+          ></v-progress-linear>
             <v-btn
                 block
                 color="success"
@@ -126,6 +172,24 @@ export default{
         </v-form>
     </v-card>
     
-    
+    <v-snackbar
+      v-model="snackBarVisibility"
+      multi-line
+      :timeout="4000"
+      elevation="5"
+      color="white"
+    >
+      {{ snackBarText }}
+
+      <template v-slot:actions>
+        <v-btn
+          color="red"
+          variant="text"
+          @click="snackBarVisibility = false"
+        >
+          {{$t("forms.closeCaption")}}
+        </v-btn>
+      </template>
+    </v-snackbar>
     </v-sheet>
 </template>
