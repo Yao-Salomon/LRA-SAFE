@@ -51,6 +51,11 @@ const router = createRouter({
       path:'/feedback',
       name:'feedback',
       component:()=> import('../views/account/FeedbackView.vue')
+    },
+    {
+      path:'/order',
+      name:'order',
+      component:()=> import('../views/works/OrderView.vue')
     }
   ]
 })

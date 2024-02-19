@@ -24,8 +24,17 @@ i18next
           },
           navigation:{
             account:"Your account",
-            feedback:"Make a complaint"
-        }
+            feedback:"Make a complaint",
+            order:"New order",
+            next:"NEXT",
+            previous:"PREVIOUS"
+          },
+          UI:{
+            commandStepperFirst:"General Informations",
+            commandStepperSecond:"Materials Setup",
+            commandStepperThird:"Trials Setup",
+            commandStepperFourth:"Validation"
+          }
         }
       },
       fr:{
@@ -44,7 +53,16 @@ i18next
             },
             navigation:{
                 account:"Votre compte",
-                feedback:"Emettre une plainte"
+                feedback:"Emettre une plainte",
+                order:"Nouvelle commande",
+                next:"NEXT",
+                previous:"PREVIOUS"
+            },
+            UI:{
+              commandStepperFirst:"General Informations",
+              commandStepperSecond:"Matériaux",
+              commandStepperThird:"Essais",
+              commandStepperFourth:"Finalisation"
             }
         }
       }

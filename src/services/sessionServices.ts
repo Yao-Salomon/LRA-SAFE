@@ -49,11 +49,14 @@ export async function checkSessionValidity(username:string){
         .then((response) => {
           console.log(JSON.stringify(response.data));
           const sessionStore=useSessionStore();
-          
+
+          const lastVisitedPage=localStorage.getItem("lastVisitedPage");
+
           if(response.data.status==200){
             sessionStore.setSession(true)
             console.log("case session Valid")
-            router.push('/')
+            
+            router.push(lastVisitedPage==null?'/':lastVisitedPage)
           }else{
             console.log("case session Expired")
             sessionStore.setSession(false)

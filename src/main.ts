@@ -10,6 +10,8 @@ import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
 import i18n from './services/i18n'
+import Vue3FormWizard from 'vue3-form-wizard'
+import 'vue3-form-wizard/dist/style.css'
 
 
 const pinia=createPinia()
@@ -40,5 +42,6 @@ const vuetify = createVuetify({
 app.use(pinia);
 app.use(router);
 app.use(vuetify);
+app.use(Vue3FormWizard)
 
 i18n(app).mount('#app')
