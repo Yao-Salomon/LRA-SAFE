@@ -44,7 +44,7 @@ i18next
                 usernameRequired:"Le nom d'utilisateur est requis",
             },
             forms:{
-                signInButton:"S'INSCRIRE",
+                signInButton:"SE CONNECTER",
                 signUpButton:"FAIRE LA DEMANDE",
                 username:"Nom d'utilisateur",
                 password:"Mot de passe",

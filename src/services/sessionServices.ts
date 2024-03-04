@@ -47,7 +47,7 @@ export async function checkSessionValidity(username:string){
         
         axios.request(configSession)
         .then((response) => {
-          console.log(JSON.stringify(response.data));
+          
           const sessionStore=useSessionStore();
 
           const lastVisitedPage=localStorage.getItem("lastVisitedPage");
@@ -55,7 +55,6 @@ export async function checkSessionValidity(username:string){
           if(response.data.status==200){
             sessionStore.setSession(true)
             console.log("case session Valid")
-            
             router.push(lastVisitedPage==null?'/':lastVisitedPage)
           }else{
             console.log("case session Expired")
@@ -70,6 +69,6 @@ export async function checkSessionValidity(username:string){
 
     })
     .catch((error) => {
-        router.push('/')
+        router.push('/404')
     });
 }

@@ -1,24 +1,54 @@
 <script lang="ts">
     import { ref } from 'vue'
     import {useTranslation} from "i18next-vue";
-    import {fetchDraftedCommand,manageDraftedCommand,loadMTLs} from "../../services/commandServices";
+    import {fetchDraftedCommand,manageDraftedCommand,loadMTLs, fetchConstructionSites, loadSituations, createCommand} from "@/services/commandServices";
+    import {checkValidCode, filterArrayUnique, getAbbrById, getConstructionSiteById, getExternalIDByAbbr, getExternalIDById, getMaterialAbbrById, getMaterialByCode, getMaterialIDByCode, getTrialsByCode,getTrialByID,getMaterialObjectByCode} from "@/utils"
     import { computed } from 'vue';
 
     import { onMounted } from 'vue';
     import { useUserSTore } from '@/stores/user';
     import { usePagesStore } from '@/stores/pages';
     import { useRoute } from 'vue-router';
+    import { getReportId, getTDRReportId, runReport, runTDRReport } from '@/services/reportingServices';
+    import router from '@/router';
+
 export default{
 
     setup(){
         const step=ref(1)
         const {i18next,t}=useTranslation()
-        const materialComboItems=([])
-
-        const loadingDraft=ref(true)
-        const loadingMTLs=ref(true)
+        let mtlsMappedMaterial:any=[]
+        const pageLoading=ref(true)
+        const reportLoading=ref(false)
+       
+        const uniquesMappedMaterial:any=ref([])
+        const constructionSites:any=ref([])
+        const selectedConstructionSite=ref('')
+        
+        
         const activity=ref(false)
         const draftedCommand=ref(false)
+        const snackbar=ref(false)
+        const snackbarText=ref('')
+        const situations:any=ref([])
+        const selectedMaterialCodes:any=ref([])
+
+        let orderedMaterialList:any=[]
+        let orderedMaterialWithTrials:any=[]
+
+        const currentBoxFieldValue=ref("");
+        const currentDatePrelevement=ref("");
+        const currentOrigine=ref("");
+        const currentSituation=ref("");
+        const openedMaterialPanel=ref();
+
+        const runReportLoading=ref(false)
+
+        //Data for final command building
+        const materialToMapTrial=ref("");
+        const selectedTrials=ref([])
+        
+        const finalMaterialWithTrials:any=ref([])
 
         const location=useRoute()
 
@@ -28,37 +58,275 @@ export default{
         const userStore=useUserSTore()
 
         const username=computed(()=>userStore.getUsername)
-
-        async function manageDrafted(commandId:string){
-            activity.value=true
-            const response=await manageDraftedCommand(commandId);
-            if(response.status==200){
-                draft.value={}
-                draftedCommand.value=false
+        const addBtnActive=computed(()=>currentBoxFieldValue.value&&currentSituation.value.length>0&&currentDatePrelevement.value.length>0&&currentOrigine.value.length>0)
+        const addBtnToFinalActive=computed(()=>materialToMapTrial.value&&selectedTrials.value.length>0)
+        const listOfTrials=computed(()=>fetchTrialsRM(materialToMapTrial.value))
+        const constructionSiteExternalId=computed(()=>getConstructionSiteById(constructionSites.value,selectedConstructionSite.value))
+        
+        const openedMaterialPanelExternalID=computed(()=>{
+            
+            if(openedMaterialPanel.value==undefined){
+                return '';
             }else{
-                draft.value={}
-                draftedCommand.value=false
+                return getMaterialByCode(selectedMaterialCodes.value,openedMaterialPanel.value)
             }
-            activity.value=false
+        })
+        const openedMaterialPanelID=computed(()=>{
+            if(openedMaterialPanel.value==undefined){
+                return '';
+            }else{
+                return getMaterialIDByCode(selectedMaterialCodes.value,openedMaterialPanel.value)
+            }
+        })
+        const trialsForOpenedMaterialPanel=computed(()=>{
+            
+            if(openedMaterialPanel.value==undefined){
+                return [];
+            }else{
+                console.log("The getTrialsBy code return function",getTrialsByCode(finalMaterialWithTrials.value,openedMaterialPanel.value))
+                if(getTrialsByCode(finalMaterialWithTrials.value,openedMaterialPanel.value)!=undefined){
+                    return getTrialsByCode(finalMaterialWithTrials.value,openedMaterialPanel.value)
+                }else{
+                    return 0
+                } 
+            }
+        })
+
+        const trialsForMaterialByCode=computed(()=>{
+            let trials=mtls.value.filter((e:any)=>{
+                return e.material.id==openedMaterialPanelID.value
+            }).map((e:any)=>{
+                return e.trial
+            })
+            return filterArrayUnique(trials).sort((a:any,b:any)=> {
+                
+                if (a.externalID>b.externalID)
+                    return 1;
+                if (a.externalID<b.externalID)
+                    return -1;
+                
+                return 0;
+            });
+        })
+
+        function fetchTrialsRM(materialID:any){
+           
+            if(materialID.length>0){
+                let trials=mtls.value.filter((e:any)=>{
+                    return e.material.id==materialID
+                }).map((e:any)=>{
+                    return e.trial
+                })
+                return filterArrayUnique(trials).sort((a:any,b:any)=> {
+                    
+                    if (a.externalID>b.externalID)
+                        return 1;
+                    if (a.externalID<b.externalID)
+                        return -1;
+                    
+                    return 0;
+                });
+
+            }else{
+                let trials=mtls.value.map((e:any)=>{
+                    return e.trial
+                })
+                return filterArrayUnique(trials).sort((a:any,b:any)=> {
+                    
+                    if (a.externalID>b.externalID)
+                        return 1;
+                    if (a.externalID<b.externalID)
+                        return -1;
+                    
+                    return 0;
+                })
+            }
         }
 
-        function ceationComplete(){
-            alert("super zuper fuper")
+        function deleteMaterial(materialCode:any){
+            
+            let result=orderedMaterialList.filter((e:any)=>{
+                return e.materialCode!=materialCode
+            })
+            
+            orderedMaterialList=[...result];
+            selectedMaterialCodes.value=orderedMaterialList;
+            
+            
         }
+        function getTrialByIDUI(container:any,id:any){
+            return getTrialByID(container,id)
+        }
+        
+        function manageMaterialLines(){
+            
+            let lineObject:any={};
+            lineObject["materialId"]=currentBoxFieldValue.value;
+            lineObject["samplingDate"]=currentDatePrelevement.value;
+            lineObject["origin"]=currentOrigine.value;
+            lineObject["situation"]=currentSituation.value;
+            
+            let materialCode=getMaterialAbbrById(uniquesMappedMaterial.value,currentBoxFieldValue.value,currentDatePrelevement.value,currentOrigine.value,currentSituation.value);
+            let materialExternalID=getExternalIDById(uniquesMappedMaterial.value,currentBoxFieldValue.value)
+            let situationExternalID=getExternalIDByAbbr(situations.value,currentSituation.value);
+            let materialAbbreviation=getAbbrById(uniquesMappedMaterial.value,currentBoxFieldValue.value)
+
+            if(materialCode!=0){
+
+                lineObject["materialCode"]=materialCode;
+                lineObject["materialExternalID"]=materialExternalID;
+                lineObject["situationExternalID"]=situationExternalID;
+                lineObject["materialAbbreviation"]=materialAbbreviation;
+
+                const codeValid=checkValidCode(orderedMaterialList,materialCode);
+                if(codeValid){
+                    orderedMaterialList.push(lineObject); 
+                    selectedMaterialCodes.value=[...orderedMaterialList];
+                }else{
+                   snackbar.value=true
+                   snackbarText.value="Cette ligne existe déjà"
+                }
+
+            }else{
+                //SnackBar
+            }
+            
+        }
+        function validateConstructionSites(){
+
+            if(selectedConstructionSite.value.length==0){
+                if(constructionSites.value.length==0){
+                    snackbarText.value="Vous n'avez aucun chantier d'habilitation"//A traduire
+                }else{
+                    snackbarText.value="Vous devez choisir un chantier"//A traduire
+                }
+                snackbar.value=true
+                return false
+            }else{
+                return true
+            }
+
+        }
+
+        function validateMaterials(){
+            if(selectedMaterialCodes.value.length==0){
+                snackbar.value=true
+                snackbarText.value="Vous devez ajouter au moins un matériau à la liste"
+                return false
+            }else{
+                return true;
+            }
+        }
+
+        function validateFinalList(){
+            if(finalMaterialWithTrials.value.length>0){
+                let valid=true
+                finalMaterialWithTrials.value.forEach((element:any,index:any) => {
+                    if(element.trials.length==0){
+                        valid&&=false
+                    }else{
+                        valid&&=true
+                    }
+                });
+                if(valid){
+                    return true
+                }else{
+                    snackbar.value=true
+                    snackbarText.value="Vous devez vous assurer de renseigner au moins un essai par matériau choisi"
+                    return false
+                }
+                
+            }else{
+                snackbar.value=true
+                snackbarText.value="Vous devez vous assurer de renseigner au moins un essai par matériau choisi"
+                return false
+            }
+        }
+
+        function buildFinalCommandList(){
+            let lineObject:any={}
+            let material=getMaterialObjectByCode(selectedMaterialCodes.value,openedMaterialPanel.value)
+            console.log("The material logged",material);
+            lineObject['materialId']=material.materialId
+            lineObject['samplingDate']=material.samplingDate
+            lineObject["origin"]=material.origin;
+            lineObject["situation"]=material.situation;
+            lineObject['materialCode']=openedMaterialPanel.value;
+            lineObject['trials']=selectedTrials.value
+
+            const codeValid=checkValidCode(finalMaterialWithTrials.value,openedMaterialPanel.value);
+
+            if(codeValid){
+                orderedMaterialWithTrials.push(lineObject); 
+                finalMaterialWithTrials.value=[...orderedMaterialWithTrials];
+            }else{
+                finalMaterialWithTrials.value.forEach((e:any,index:any,a:any)=>{
+                    if(e.materialCode==openedMaterialPanel.value){
+                        a.splice(index,1,lineObject)
+                    }
+                })
+            }
+            console.log("The finalMaterialWit trials list",finalMaterialWithTrials.value);
+        }
+        async function creationComplete(){
+            pageLoading.value=true
+            const commandCreation=await createCommand(username.value,selectedConstructionSite.value,finalMaterialWithTrials.value);
+            pageLoading.value=false
+        }
+
+        async function launchTDRReport(){
+            reportLoading.value=true
+            const response = await getTDRReportId(username.value);
+            const fileResponse=await runTDRReport(response,[{'name':'site' ,'value':selectedConstructionSite.value}]);
+          
+            var blob = new Blob([fileResponse], {
+            type: 'application/pdf',
+            });
+            const link = document.createElement('a');
+            // create a blobURI pointing to our Blob
+            var URL = window.URL || window.webkitURL;
+            
+            link.href = URL.createObjectURL(blob);
+            link.download = "TDR"+selectedConstructionSite.value;
+            // some browser needs the anchor to be in the doc
+            document.body.append(link);
+            link.click();
+
+            reportLoading.value=false
+            link.remove();
+
+            
+        }
+
 
         onMounted(async()=>{
-            //Page redirection when refreshing setup
+
+            pageLoading.value=true
+
             localStorage.removeItem("lastVisitedPage")
             localStorage.setItem("lastVisitedPage",location.path)
             
             const drafted=await fetchDraftedCommand(username.value)
-            draft.value=drafted
-            loadingDraft.value=false
-            draftedCommand.value=Object.keys(drafted).length===0?false:true
+            const mtlsLoaded=await loadMTLs()
+            const situationsLoaded=await loadSituations()
+            constructionSites.value=await fetchConstructionSites(username.value);
 
-            const mtlsLoaded=await fetchDraftedCommand(username.value)
+            
+            situations.value=situationsLoaded
+        
+            
             mtls.value=mtlsLoaded
-            loadingMTLs.value=false
+            mtlsMappedMaterial=mtlsLoaded.map((e:any,index:any)=>{
+                return {
+                    index:index,
+                    id:e.material.id,
+                    externalID:e.material.externalID,
+                    materialSection:e.material.section,
+                    materialAbbreviation:e.material.abbreviation,
+                }
+            })
+            uniquesMappedMaterial.value=filterArrayUnique(mtlsMappedMaterial);
+            pageLoading.value=false
 
         })
         
@@ -66,10 +334,43 @@ export default{
             step,
             draftedCommand,
             draft,
-            manageDrafted,
             activity,
-            loadingDraft,
-            ceationComplete
+            creationComplete,
+            uniquesMappedMaterial,
+            mtls,
+            currentBoxFieldValue,
+            currentDatePrelevement,
+            currentSituation,
+            currentOrigine,
+            manageMaterialLines,
+            addBtnActive,
+            constructionSites,
+            selectedConstructionSite,
+            validateConstructionSites,
+            snackbar,
+            snackbarText,
+            situations,
+            selectedMaterialCodes,
+            validateMaterials,
+            materialToMapTrial,
+            selectedTrials,
+            listOfTrials,
+            deleteMaterial,
+            addBtnToFinalActive,
+            runReportLoading,
+            launchTDRReport,
+            constructionSiteExternalId,
+            openedMaterialPanel,
+            openedMaterialPanelExternalID,
+            trialsForOpenedMaterialPanel,
+            trialsForMaterialByCode,
+            buildFinalCommandList,
+            getMaterialByCode,
+            getTrialByIDUI,
+            finalMaterialWithTrials,
+            validateFinalList,
+            pageLoading,
+            reportLoading
 
         }
     }
@@ -79,926 +380,405 @@ export default{
 </script>
 
 <template>
-    <v-sheet
-        width="100%"
-        max-width="1000"
+    <v-sheet v-if="pageLoading" width="80%" height="80%">
+        <v-skeleton-loader
+          class="mx-auto border"
+          width="80%"
+          type="card-avatar, actions,article"
+        ></v-skeleton-loader>
+    </v-sheet>
+    <v-sheet v-else width="100%" max-width="1000">
 
+    <v-snackbar
+      v-model="snackbar"
+      color="deep-purple-accent-4"
+      elevation="24"
     >
-    <form-wizard @onComplete="ceationComplete" step-size="xs">
-        <tab-content :title="$t('UI.commandStepperFirst')">
+      {{ snackbarText }}
+
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="snackbar = false"
+        >
+          Fermer
+        </v-btn>
+      </template>
+    </v-snackbar>
+    <form-wizard @onComplete="creationComplete" class="border rounded-lg" errorColor="red" transition="fade" color="green" step-size="xs" next-button-text="Suivant"> 
+        <tab-content :title="$t('UI.commandStepperFirst')" :beforeChange="validateConstructionSites">
             <v-sheet 
                     height="100%"
                     width="100%"
                 >   
-                    <v-skeleton-loader
-                    v-if="loadingDraft"
-                    type="card-avatar, actions"
-                    >
-                    </v-skeleton-loader>
-                    <v-col v-if="draftedCommand&&!loadingDraft">
-                        <v-card 
-                            variant="elevated"
-                            hover
-                        >   
+                    <v-row v-if="constructionSites.length>0">
+                        <v-col>
+                            <div class=" text-center ">
+                                <p class="text-h6 font-weight-bold">
+                                    Choisissez un chantier
+                                </p>
+                                <v-icon class="text-h3" icon="mdi-sign-caution" color="orange"/>
+                            </div>
+                            <v-radio-group inline v-model="selectedConstructionSite" class="d-flex justify-center align-center" elevation="3" style="min-height:235px;overflow-y: scroll;">
+                                <div v-for="item in constructionSites" class="d-flex  ma-1 bg-green pa-1 rounded-xl">
+                                    <v-card class="bg-green h-100 border py-3 rounded-s-xl d-flex justify-center align-center" rounded="0" >
+                                        <v-radio :value="item.id"></v-radio>
+                                    </v-card>
+                                    <v-card class="border rounded-e-xl pl-3 py-3 pr-2 d-flex align-center" rounded="0" max-width="250px">
+                                        <p class="text-body-1">{{ item.externalID }}</p>
+                                    </v-card>
+                                </div>
+                            </v-radio-group>
+                        </v-col>
+                    </v-row>
+                    <v-row v-else>
+                        <v-col cols="12">
+                            <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+                                <p>
+                                    <v-icon icon="mdi-leaf-circle" color="blue"/>
+                                    Vous ne disposez d'aucune habilitation valide vous permettant de passer une commande
+                                </p>
+                            </div>
+                        </v-col>
+                    </v-row> 
+            </v-sheet>
+        </tab-content>
+        <tab-content :title="$t('UI.commandStepperSecond')" :beforeChange="validateMaterials">
+            <v-sheet 
+                    height="100%"
+                    width="100%"
+                >   
+                    <v-row>
+                        <v-col
+
+                        >
+                            <v-select
+                                prepend-inner-icon="mdi-leaf-circle"
+                                :items="uniquesMappedMaterial"
+                                item-value="id"
+                                item-title="externalID"
+                                label="Matériaux"
+                                v-model="currentBoxFieldValue"
+                            >
+                            </v-select>
+                            <v-text-field
+                                label="Date de  prélèvement"
+                                type="date"
+                                v-model="currentDatePrelevement"
+                            >
+                            </v-text-field>
+                            <v-btn
+                                prepend-icon="mdi-book-open"
+                                color="orange"
+                                :loading="reportLoading"
+                                variant="tonal"
+                                class="align-self-end align-items-ends"
+                                @click="launchTDRReport"
+                            >
+                                Voir le TDR
+                            </v-btn>
+                            <div class="mt-3">
+                                <p class="text-body-1">
+                                    <span class="font-weight-bold">Chantier: </span>
+                                    {{ constructionSiteExternalId }}
+                                </p>
+                            </div>
+                        </v-col>
+                        <v-col
                             
-                            <div class="d-flex flex-md-row flex-column justify-space-between  align-center pa-5">
-                                <div>
-                                    <v-card-title class="d-flex justify-start align-center">
-                                        <v-icon icon="mdi-alarm-bell" color="purple"/>
-                                        Notification
-                                    </v-card-title>
-                                    <v-card-text class="text-body-1 ml-5">
-                                        Vous avez une commande enregistré en brouillon.
-                                        <br/>
-                                        Vous avez donc la possibilité de charger celle-ci ou de l'écraser.
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-btn
-                                            @click=""
-                                            :disabled="activity"
-                                            color="green"
-                                            text="Charger"
-                                            prepend-icon="mdi-cloud-upload"
-                                        >
+                        >
+                            <v-select
+                                label="Situation"
+                                prepend-inner-icon="mdi-palette-swatch"
+                                :items="situations"
+                                item-value="abbreviation"
+                                hide-no-data
+                                item-title="externalID"
+                                v-model="currentSituation"
+                            >
+                            </v-select>
+                            <v-text-field
+                                label="Origine"
+                                prepend-inner-icon="mdi-map-marker-radius"
+                                v-model="currentOrigine"
+                            >
+                            </v-text-field>
+                            <v-btn
+                                icon="mdi-folder-plus"
+                                :disabled="!addBtnActive"
+                                color="green"
+                                class="align-self-end align-items-ends"
+                                @click="manageMaterialLines"
+                            >
+                            </v-btn>
+                            
+                        </v-col>
+                        <v-col
+                            cols="5"
 
-                                        </v-btn>
-                                        <v-btn
-                                            @click="manageDrafted(draft.command.id)"
-                                            :loading="activity"
-                                            color="red"
-                                            text="Ecraser"
-                                            prepend-icon="mdi-delete"
+                        >
+                            <v-card style="height: 300px; overflow-y: scroll;">
+                                <v-card-title class="d-flex align-center">
+                                    <v-icon icon="mdi-book-open-page-variant" color="blue"/>
+                                    <span class="text-body-1 ml-1">Liste des matériaux sélectionnés</span>
+                                </v-card-title>
+                                <v-card-item v-if="selectedMaterialCodes.length>0">
+                                    <v-expansion-panels>
+                                        <v-expansion-panel 
+                                            elevation="1"
+                                            class="my-1"
+                                            v-for="(item,index) in selectedMaterialCodes"
                                         >
-
-                                        </v-btn>
-                                    </v-card-actions>
-                                </div>
-                                <div class="mr-2">
-                                    <div>
-                                        <v-card
-                                            variant="tonal"
-                                            color="green"
-                                            elevation="3"
-                                        >
-                                            <v-card-title class="d-flex align-center flex-wrap">
-                                                <v-icon icon="mdi-alpha-b-circle" color="green"/>
-                                                <span class="ml-1">Commande en brouillon</span>
-                                            </v-card-title>
-                                            <v-card-text>
-                                                <v-list>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.command.reference }}</v-list-item-title>
-                                                        <v-list-item-subtitle>Reference</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ new Date(draft.command.createdDate).toLocaleDateString('fr-FR',{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Date de création</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.lines.length===0?"Aucun":draft.lines.length}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Nombres de lignes</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                </v-list>
-                                            </v-card-text>
-                                        </v-card>
-                                    </div>
-                                </div>
-                            </div>
-                        </v-card>
-                    </v-col>
-                    <v-col v-else class="mb-1">
-                        <v-card>
-                            <v-card-title class="d-flex align-center">
-                                <v-icon icon="mdi-lightning-bolt-circle" color="deep-purple"/>
-                                <span class="ml-3">Bon à savoir</span>
-                            </v-card-title>
-                            <v-card-item>
-                                <v-list density="compact">
-                                    <v-list-item>
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-cloud-circle" color="blue"/>
-                                                    <span class="text-h6">Possibilité d'enregistrer en Brouillon</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Vous avez la possibilité à tout moment d'enregistrer votre commande en brouillon.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
+                                            <v-expansion-panel-title>
+                                               <div class="d-flex justify-space-between align-center" style="width:250px">
+                                                    <p class="font-weight-bold"> <v-icon icon="mdi-image-filter-vintage" color="green"/>{{ item.materialAbbreviation.toUpperCase() }}</p>
                                                     <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
+                                                        icon="mdi-delete"
+                                                        class="ml-3"
+                                                        color="red"
+                                                        size="sm"
+                                                        @click="deleteMaterial(item.materialCode)"
                                                     >
-                                                        Documentation
                                                     </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-leaf-circle" color="green"/>
-                                                    <span class="text-h6">Suivi des commandes</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Les commandes évoluent suivant 8 statuts différents.
-                                                    décrivant une étape du traitement.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-crown-circle" color="orange"/>
-                                                    <span class="text-h6">Passer une commande</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Cliquer sur suivant et vous pourrez choisir le matériau pour la commande.
-                                                    <br/>
-                                                    La fenêtre des essais permet de choisir les essais pour une ligne de matériau donnée.
-                                                    <br/>
-                                                    La fenêtre de validation permet de finaliser la commande
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                </v-list>
-                            </v-card-item>
+                                               </div>
+                                            </v-expansion-panel-title>
+                                            <v-expansion-panel-text>
+                                                <p class="d-flex align-center">
+                                                    <span class="font-weight-bold mr-2"> 
+                                                        Nom:  
+                                                    </span>
+                                                    <span>
+                                                        {{ item.materialExternalID }}
+                                                    </span>
+                                                </p>
+                                                <p class="d-flex align-center">
+                                                    <span class="font-weight-bold mr-2"> 
+                                                        Situation:  
+                                                    </span>
+                                                    <span>
+                                                        {{ item.situation.toUpperCase() }} ({{ item.situationExternalID }})
+                                                    </span>
+                                                </p>
+                                                <p class="d-flex align-center">
+                                                    <span class="font-weight-bold mr-2"> 
+                                                        Date:  
+                                                    </span>
+                                                    <span>
+                                                        {{ new Date(item.samplingDate).toLocaleDateString() }}
+                                                    </span>
+                                                </p>
+                                                <p class="d-flex align-center">
+                                                    <span class="font-weight-bold mr-2"> 
+                                                        Origine:  
+                                                    </span>
+                                                    <span>
+                                                        {{ item.origin }}
+                                                    </span>
+                                                </p>
+                                            </v-expansion-panel-text>
+                                        </v-expansion-panel>
+                                    </v-expansion-panels>
+                                    
+                                </v-card-item>
+                                <v-card-item v-else>
+                                    <p>
+                                        <v-icon icon="mdi-leaf-circle"/>
+                                        <span>Ajouter des matériaux à la liste de commande</span>
+                                    </p>
+                                </v-card-item>
+                            </v-card>
+                        </v-col>
                         
-                        </v-card>
-                    </v-col>     
+                    </v-row> 
             </v-sheet>
         </tab-content>
-        <tab-content :title="$t('UI.commandStepperSecond')">
-            <v-sheet 
-                    height="100%"
-                    width="100%"
-                >   
-                    <v-skeleton-loader
-                    v-if="loadingDraft"
-                    type="card-avatar, actions"
+        <tab-content :title="$t('UI.commandStepperThird')" :beforeChange="validateFinalList">
+            <v-sheet height="300px" class="border pa-1 d-flex">
+                <div style="max-width: 30%;max-height: 100%;overflow-y: scroll;">
+                    <v-expansion-panels
+                        v-model="openedMaterialPanel"
                     >
-                    </v-skeleton-loader>
-                    <v-col v-if="draftedCommand">
-                        <v-card 
-                            variant="elevated"
-                            hover
+                        <v-expansion-panel 
+                            elevation="1"
+                            class="my-1"
+                            v-for="(item,index) in selectedMaterialCodes"
+                            :value="item.materialCode"
                         >
-                            <div class="d-flex flex-md-row flex-column justify-space-between  align-center pa-5">
-                                <div>
-                                    <v-card-title class="d-flex justify-start align-center">
-                                        <v-icon icon="mdi-alarm-bell" color="purple"/>
-                                        Notification
-                                    </v-card-title>
-                                    <v-card-text class="text-body-1 ml-5">
-                                        Vous avez une commande enregistré en brouillon.
-                                        <br/>
-                                        Vous avez donc la possibilité de charger celle-ci ou de l'écraser.
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-btn
-                                            @click=""
-                                            :disabled="activity"
-                                            color="green"
-                                            text="Charger"
-                                            prepend-icon="mdi-cloud-upload"
-                                        >
-
-                                        </v-btn>
-                                        <v-btn
-                                            @click="manageDrafted(draft.command.id)"
-                                            :loading="activity"
-                                            color="red"
-                                            text="Ecraser"
-                                            prepend-icon="mdi-delete"
-                                        >
-
-                                        </v-btn>
-                                    </v-card-actions>
+                            <v-expansion-panel-title>
+                                <div class="d-flex justify-space-between align-center" style="width:250px">
+                                    <p class="font-weight-bold"> <v-icon icon="mdi-image-filter-vintage" color="green"/>{{ item.materialAbbreviation.toUpperCase() }}</p>
                                 </div>
-                                <div class="mr-2">
-                                    <div>
+                            </v-expansion-panel-title>
+                            <v-expansion-panel-text>
+                                <p class="d-flex align-center">
+                                    <span class="font-weight-bold mr-2"> 
+                                        Nom:  
+                                    </span>
+                                    <span>
+                                        {{ item.materialExternalID }}
+                                    </span>
+                                </p>
+                                <p class="d-flex align-center">
+                                    <span class="font-weight-bold mr-2"> 
+                                        Situation:  
+                                    </span>
+                                    <span>
+                                        {{ item.situation.toUpperCase() }} ({{ item.situationExternalID }})
+                                    </span>
+                                </p>
+                                <p class="d-flex align-center">
+                                    <span class="font-weight-bold mr-2"> 
+                                        Date:  
+                                    </span>
+                                    <span>
+                                        {{ new Date(item.samplingDate).toLocaleDateString() }}
+                                    </span>
+                                </p>
+                                <p class="d-flex align-center">
+                                    <span class="font-weight-bold mr-2"> 
+                                        Origine:  
+                                    </span>
+                                    <span>
+                                        {{ item.origin }}
+                                    </span>
+                                </p>
+                            </v-expansion-panel-text>
+                        </v-expansion-panel>
+                    </v-expansion-panels>
+                </div>
+                <div class="d-flex justify-center bg-grey-lighten-4 ml-2 border rounded-sm" style="width:69%;min-height: 100%;overflow-y: scroll;" >
+                    <div class="d-flex text-center flex-column w-100 h-100">
+                        <div class="bg-green">
+                            <p class="font-weight-bold text-body-1 pt-2">
+                                <v-icon icon="mdi-star-cog"/>
+                                {{ openedMaterialPanelExternalID!=''?openedMaterialPanelExternalID:'Sélectionner un matériau' }}
+                            </p>
+                            <div>
+                                <v-dialog
+                                    width="auto"
+                                    scrollable
+                                    :close-on-back="false"
+                                    :close-on-content-click="false"
+                                >
+                                    <template v-slot:activator="{ props: activatorProps }">
+                                        <v-btn
+                                            icon="mdi-store-plus-outline"
+                                            v-bind="activatorProps"
+                                        ></v-btn>
+                                    </template>
+                                    <template v-slot:default="{ isActive }">
                                         <v-card
-                                            variant="tonal"
-                                            color="green"
-                                            elevation="3"
+                                            prepend-icon="mdi-store-plus-outline"
+                                            title="Choisissez un ou plusieurs essais"
                                         >
-                                            <v-card-title class="d-flex align-center flex-wrap">
-                                                <v-icon icon="mdi-alpha-b-circle" color="green"/>
-                                                <span class="ml-1">Commande en brouillon</span>
-                                            </v-card-title>
+                                            <v-divider class="mt-3"></v-divider>
                                             <v-card-text>
-                                                <v-list>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.command.reference }}</v-list-item-title>
-                                                        <v-list-item-subtitle>Reference</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ new Date(draft.command.createdDate).toLocaleDateString('fr-FR',{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Date de création</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.lines.length===0?"Aucun":draft.lines.length}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Nombres de lignes</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                </v-list>
+                                                <v-checkbox 
+                                                    v-for="(trial,index) in trialsForMaterialByCode"
+                                                    :color="index%2==1?'blue':'green'"
+                                                    v-model="selectedTrials"
+                                                    :value="trial.id"
+                                                    :label="trial.externalID+' ('+trial.unitPrice+') F CFA'"
+                                                />
                                             </v-card-text>
+                                            <v-card-actions>
+                                                <v-btn
+                                                    text="Close"
+                                                    variant="flat"
+                                                    color="grey"
+                                                    @click="()=>{
+                                                        isActive.value = false
+                                                        selectedTrials=[]
+                                                    }"
+                                                ></v-btn>
+
+                                                <v-spacer></v-spacer>
+
+                                                <v-btn
+                                                    color="blue"
+                                                    text="OK"
+                                                    variant="flat"
+                                                    @click="()=>{
+                                                        buildFinalCommandList()
+                                                        isActive.value=false
+                                                    }"
+                                                ></v-btn>
+                                            </v-card-actions>
                                         </v-card>
-                                    </div>
-                                </div>
+                                    </template>
+                                </v-dialog>
                             </div>
-                        </v-card>
-                    </v-col>
-                    <v-col v-else class="mb-1">
-                        <v-card>
-                            <v-card-item>
-                                <v-list density="compact">
-                                    <v-list-item>
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-cloud-circle" color="blue"/>
-                                                    <span class="text-h6">Possibilité d'enregistrer en Brouillon</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Vous avez la possibilité à tout moment d'enregistrer votre commande en brouillon.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-leaf-circle" color="green"/>
-                                                    <span class="text-h6">Suivi des commandes</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Les commandes évoluent suivant 8 statuts différents.
-                                                    décrivant une étape du traitement.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-crown-circle" color="orange"/>
-                                                    <span class="text-h6">Passer une commande</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Cliquer sur suivant et vous pourrez choisir le matériau pour la commande.
-                                                    <br/>
-                                                    La fenêtre des essais permet de choisir les essais pour une ligne de matériau donnée.
-                                                    <br/>
-                                                    La fenêtre de validation permet de finaliser la commande
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                </v-list>
-                            </v-card-item>
+                        </div>
                         
-                        </v-card>
-                    </v-col>     
-            </v-sheet>
-        </tab-content>
-        <tab-content :title="$t('UI.commandStepperThird')">
-            <v-sheet 
-                    height="100%"
-                    width="100%"
-                >   
-                    <v-skeleton-loader
-                    v-if="loadingDraft"
-                    type="card-avatar, actions"
-                    >
-                    </v-skeleton-loader>
-                    <v-col v-if="draftedCommand">
-                        <v-card 
-                            v-if="draftedCommand"
-                            variant="elevated"
-                            hover
-                        >
-                            <div class="d-flex flex-md-row flex-column justify-space-between  align-center pa-5">
-                                <div>
-                                    <v-card-title class="d-flex justify-start align-center">
-                                        <v-icon icon="mdi-alarm-bell" color="purple"/>
-                                        Notification
-                                    </v-card-title>
-                                    <v-card-text class="text-body-1 ml-5">
-                                        Vous avez une commande enregistré en brouillon.
-                                        <br/>
-                                        Vous avez donc la possibilité de charger celle-ci ou de l'écraser.
+                        <div style="overflow-y: scroll;" class="h-100 border d-flex justify-center align-center flex-wrap" v-if="trialsForOpenedMaterialPanel!=0">
+                            <div class="h-100 d-flex justify-center align-center w-100" v-if="trialsForOpenedMaterialPanel.trials.length==0">
+                                <v-chip variant="tonal" color="deep-purple" elevation="1">
+                                    <v-icon icon="mdi-chart-bubble" class="text-h4"/>
+                                    <span class="text-body-1">La liste des essais est vide.</span>
+                                </v-chip>
+                            </div>
+                           <div class="ma-1" v-for="(item,index) in trialsForOpenedMaterialPanel.trials" else>
+                                <v-card v-if="index%2==1" variant="tonal" color="green" width="200px" height="120px">
+                                    <v-card-item>
+                                        <p>
+                                            {{ getTrialByIDUI(trialsForMaterialByCode,item).externalID }}
+                                        </p>
+                                    </v-card-item>
+                                    <v-divider></v-divider>
+                                    <v-card-text>
+                                        <p>
+                                            <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
+                                            <span>F CFA</span>
+                                        </p>
                                     </v-card-text>
-                                    <v-card-actions>
-                                        <v-btn
-                                            @click=""
-                                            :disabled="activity"
-                                            color="green"
-                                            text="Charger"
-                                            prepend-icon="mdi-cloud-upload"
-                                        >
+                                </v-card>
+                                <v-card v-else variant="tonal" color="blue" width="200px" height="120px">
+                                    <v-card-item>
+                                        <p>
+                                            {{ getTrialByIDUI(trialsForMaterialByCode,item).externalID }}
+                                        </p>
+                                    </v-card-item>
+                                    <v-divider></v-divider>
+                                    <v-card-text>
+                                        <p>
+                                            <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
+                                            <span>F CFA</span>
+                                        </p>
+                                    </v-card-text>
+                                </v-card>
+                           </div>
+                        </div>
+                        <div class="h-100 d-flex justify-center align-center d-flex flex-column" v-else>
+                            <p v-if="openedMaterialPanelExternalID!=''">Aucun essai n'a été selectionné pour ce matériau</p>
+                            <p v-else>Choisissez un matériau!</p>
+                            <p>Cliquer sur l'icône <v-icon icon="mdi-store-plus-outline"/> pour ajouter des essais</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
 
-                                        </v-btn>
-                                        <v-btn
-                                            @click="manageDrafted(draft.command.id)"
-                                            :loading="activity"
-                                            color="red"
-                                            text="Ecraser"
-                                            prepend-icon="mdi-delete"
-                                        >
-
-                                        </v-btn>
-                                    </v-card-actions>
-                                </div>
-                                <div class="mr-2">
-                                    <div>
-                                        <v-card
-                                            variant="tonal"
-                                            color="green"
-                                            elevation="3"
-                                        >
-                                            <v-card-title class="d-flex align-center flex-wrap">
-                                                <v-icon icon="mdi-alpha-b-circle" color="green"/>
-                                                <span class="ml-1">Commande en brouillon</span>
-                                            </v-card-title>
-                                            <v-card-text>
-                                                <v-list>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.command.reference }}</v-list-item-title>
-                                                        <v-list-item-subtitle>Reference</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ new Date(draft.command.createdDate).toLocaleDateString('fr-FR',{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Date de création</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.lines.length===0?"Aucun":draft.lines.length}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Nombres de lignes</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                </v-list>
-                                            </v-card-text>
-                                        </v-card>
-                                    </div>
-                                </div>
-                            </div>
-                        </v-card>
-                    </v-col>
-                    <v-col v-else class="mb-1">
-                        <v-card>
-                            <v-card-item>
-                                <v-list density="compact">
-                                    <v-list-item>
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-cloud-circle" color="blue"/>
-                                                    <span class="text-h6">Possibilité d'enregistrer en Brouillon</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Vous avez la possibilité à tout moment d'enregistrer votre commande en brouillon.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-leaf-circle" color="green"/>
-                                                    <span class="text-h6">Suivi des commandes</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Les commandes évoluent suivant 8 statuts différents.
-                                                    décrivant une étape du traitement.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-crown-circle" color="orange"/>
-                                                    <span class="text-h6">Passer une commande</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Cliquer sur suivant et vous pourrez choisir le matériau pour la commande.
-                                                    <br/>
-                                                    La fenêtre des essais permet de choisir les essais pour une ligne de matériau donnée.
-                                                    <br/>
-                                                    La fenêtre de validation permet de finaliser la commande
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                </v-list>
-                            </v-card-item>
-                        
-                        </v-card>
-                    </v-col>     
+                </div>
             </v-sheet>
         </tab-content>
         <tab-content :title="$t('UI.commandStepperFourth')">
-            <v-sheet 
-                    height="100%"
-                    width="100%"
-                >   
-                    <v-skeleton-loader
-                    v-if="loadingDraft"
-                    type="card-avatar, actions"
-                    >
-                    </v-skeleton-loader>
-                    <v-col v-if="draftedCommand">
-                        <v-card 
-                            v-if="draftedCommand"
-                            variant="elevated"
-                            hover
-                        >
-                            <div class="d-flex flex-md-row flex-column justify-space-between  align-center pa-5">
-                                <div>
-                                    <v-card-title class="d-flex justify-start align-center">
-                                        <v-icon icon="mdi-alarm-bell" color="purple"/>
-                                        Notification
-                                    </v-card-title>
-                                    <v-card-text class="text-body-1 ml-5">
-                                        Vous avez une commande enregistré en brouillon.
-                                        <br/>
-                                        Vous avez donc la possibilité de charger celle-ci ou de l'écraser.
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-btn
-                                            @click=""
-                                            :disabled="activity"
-                                            color="green"
-                                            text="Charger"
-                                            prepend-icon="mdi-cloud-upload"
-                                        >
-
-                                        </v-btn>
-                                        <v-btn
-                                            @click="manageDrafted(draft.command.id)"
-                                            :loading="activity"
-                                            color="red"
-                                            text="Ecraser"
-                                            prepend-icon="mdi-delete"
-                                        >
-
-                                        </v-btn>
-                                    </v-card-actions>
-                                </div>
-                                <div class="mr-2">
-                                    <div>
-                                        <v-card
-                                            variant="tonal"
-                                            color="green"
-                                            elevation="3"
-                                        >
-                                            <v-card-title class="d-flex align-center flex-wrap">
-                                                <v-icon icon="mdi-alpha-b-circle" color="green"/>
-                                                <span class="ml-1">Commande en brouillon</span>
-                                            </v-card-title>
-                                            <v-card-text>
-                                                <v-list>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.command.reference }}</v-list-item-title>
-                                                        <v-list-item-subtitle>Reference</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ new Date(draft.command.createdDate).toLocaleDateString('fr-FR',{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Date de création</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.lines.length===0?"Aucun":draft.lines.length}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Nombres de lignes</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                </v-list>
-                                            </v-card-text>
-                                        </v-card>
-                                    </div>
-                                </div>
-                            </div>
-                        </v-card>
-                    </v-col>
-                    <v-col v-else class="mb-1">
+            <v-sheet height="300px" class="border pa-1 d-flex flex-column">   
+                <div class="d-flex justify-center w-100">
+                    <v-chip class="text-body-1" prepend-icon="mdi-cart" variant="tonal" color="blue">Finalisation de la commande</v-chip>
+                </div>
+                <div>
+                    <div class="" v-for="item in finalMaterialWithTrials">
                         <v-card>
                             <v-card-item>
-                                <v-list density="compact">
-                                    <v-list-item>
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-cloud-circle" color="blue"/>
-                                                    <span class="text-h6">Possibilité d'enregistrer en Brouillon</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Vous avez la possibilité à tout moment d'enregistrer votre commande en brouillon.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-leaf-circle" color="green"/>
-                                                    <span class="text-h6">Suivi des commandes</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Les commandes évoluent suivant 8 statuts différents.
-                                                    décrivant une étape du traitement.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-crown-circle" color="orange"/>
-                                                    <span class="text-h6">Passer une commande</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Cliquer sur suivant et vous pourrez choisir le matériau pour la commande.
-                                                    <br/>
-                                                    La fenêtre des essais permet de choisir les essais pour une ligne de matériau donnée.
-                                                    <br/>
-                                                    La fenêtre de validation permet de finaliser la commande
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                </v-list>
+                                <p><span>Code: </span>{{ item.materialCode }}</p>
+                                <p>{{ item.trials.length }}</p>
                             </v-card-item>
-                        
                         </v-card>
-                    </v-col>     
+                    </div>
+
+                </div>
             </v-sheet>
         </tab-content>
     </form-wizard>
-
-
-       <!--  <v-stepper 
-            v-model="step" 
-            :items="items"
-            show-actions
-            :next-text="$t('navigation.next')"
-            :prev-text="$t('navigation.previous')"
-        >
-            <template v-slot:item.1>
-                <v-sheet 
-                    height="100%"
-                    width="100%"
-                >   
-                    <v-skeleton-loader
-                    v-if="loadingDraft"
-                    type="card-avatar, actions"
-                    >
-                    </v-skeleton-loader>
-                    <v-col v-if="draftedCommand">
-                        <v-card 
-                            v-if="draftedCommand"
-                            variant="elevated"
-                            hover
-                        >
-                            <div class="d-flex flex-md-row flex-column justify-space-between  align-center pa-5">
-                                <div>
-                                    <v-card-title class="d-flex justify-start align-center">
-                                        <v-icon icon="mdi-alarm-bell" color="purple"/>
-                                        Notification
-                                    </v-card-title>
-                                    <v-card-text class="text-body-1 ml-5">
-                                        Vous avez une commande enregistré en brouillon.
-                                        <br/>
-                                        Vous avez donc la possibilité de charger celle-ci ou de l'écraser.
-                                    </v-card-text>
-                                    <v-card-actions>
-                                        <v-btn
-                                            @click=""
-                                            :disabled="activity"
-                                            color="green"
-                                            text="Charger"
-                                            prepend-icon="mdi-cloud-upload"
-                                        >
-
-                                        </v-btn>
-                                        <v-btn
-                                            @click="manageDrafted(draft.command.id)"
-                                            :loading="activity"
-                                            color="red"
-                                            text="Ecraser"
-                                            prepend-icon="mdi-delete"
-                                        >
-
-                                        </v-btn>
-                                    </v-card-actions>
-                                </div>
-                                <div class="mr-2">
-                                    <div>
-                                        <v-card
-                                            variant="tonal"
-                                            color="green"
-                                            elevation="3"
-                                        >
-                                            <v-card-title class="d-flex align-center flex-wrap">
-                                                <v-icon icon="mdi-alpha-b-circle" color="green"/>
-                                                <span class="ml-1">Commande en brouillon</span>
-                                            </v-card-title>
-                                            <v-card-text>
-                                                <v-list>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.command.reference }}</v-list-item-title>
-                                                        <v-list-item-subtitle>Reference</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ new Date(draft.command.createdDate).toLocaleDateString('fr-FR',{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Date de création</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                    <v-list-item>
-                                                        <v-list-item-title>{{ draft.lines.length===0?"Aucun":draft.lines.length}}</v-list-item-title>
-                                                        <v-list-item-subtitle>Nombres de lignes</v-list-item-subtitle>
-                                                    </v-list-item>
-                                                </v-list>
-                                            </v-card-text>
-                                        </v-card>
-                                    </div>
-                                </div>
-                            </div>
-                        </v-card>
-                    </v-col>
-                    <v-col v-else class="mb-1">
-                        <v-card>
-                            <v-card-item>
-                                <v-list density="compact">
-                                    <v-list-item>
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-cloud-circle" color="blue"/>
-                                                    <span class="text-h6">Possibilité d'enregistrer en Brouillon</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Vous avez la possibilité à tout moment d'enregistrer votre commande en brouillon.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-leaf-circle" color="green"/>
-                                                    <span class="text-h6">Suivi des commandes</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Les commandes évoluent suivant 8 statuts différents.
-                                                    décrivant une étape du traitement.
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                    <v-list-item
-                                        rounded="shaped"
-                                        color="primary"
-                                    >
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div>
-                                                <v-list-item-title class="d-flex align-center">
-                                                    <v-icon icon="mdi-crown-circle" color="orange"/>
-                                                    <span class="text-h6">Passer une commande</span>
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="d-flex flex-wrap ml-7 pb-3">
-                                                    Cliquer sur suivant et vous pourrez choisir le matériau pour la commande.
-                                                    <br/>
-                                                    La fenêtre des essais permet de choisir les essais pour une ligne de matériau donnée.
-                                                    <br/>
-                                                    La fenêtre de validation permet de finaliser la commande
-                                                </v-list-item-subtitle>
-                                                
-                                            </div>
-                                            <div>
-                                                <v-list-item-action>
-                                                    <v-btn
-                                                        variant="outlined"
-                                                        color="deep-purple"
-                                                    >
-                                                        Documentation
-                                                    </v-btn>
-                                                </v-list-item-action>
-                                            </div>
-                                        </div>
-                                    </v-list-item>
-                                </v-list>
-                            </v-card-item>
-                        
-                        </v-card>
-                    </v-col>     
-                </v-sheet>
-            </template>
-            <template v-slot:item.2>
-                <v-sheet 
-                >
-                    <p class="text-h2">Page des matériaux</p>
-                </v-sheet>
-            </template>
-            <template v-slot:item.3>
-                <v-sheet 
-                    height="100%"
-                    width="100%"
-                    color="blue"
-                >
-                <p class="text-h2">Page des matériaux</p>
-                </v-sheet>
-            </template>
-            <template v-slot:item.4>
-                <v-sheet 
-                    height="100%"
-                    width="100%"
-                    color="blue"
-                >
-                    <p class="text-h2">Page des matériaux</p>
-                </v-sheet>
-            </template>
-            
-        </v-stepper> -->
-
     </v-sheet>
 </template>

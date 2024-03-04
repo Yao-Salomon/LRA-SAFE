@@ -2,7 +2,7 @@
     import { onMounted } from 'vue';
     import { ref } from 'vue';
     import { useRouter } from 'vue-router';
-    import {logUserIn} from '../../services/loginServices';
+    import {logUserIn} from '@/services/loginServices';
     import { useSessionStore } from '@/stores/session';
     import { useUserSTore } from '@/stores/user';
     import {useTranslation} from "i18next-vue";
@@ -39,6 +39,8 @@ export default{
         onMounted(()=>{
             
         })
+
+
         function navigateToRoute(route:string){
             router.push(route);
         }
@@ -53,6 +55,7 @@ export default{
                 userStore.reset()
                 badCredentials.value=false
                 userStore.setUsername(serviceResponse.user.username)
+                localStorage.setItem("userDetails",JSON.stringify(serviceResponse.user))
                 sessionStore.setSession(true)
                 loggingIn.value=false
                 router.push('/')
@@ -60,6 +63,7 @@ export default{
                 userStore.reset()
                 badCredentials.value=true
                 loggingIn.value=false
+                localStorage.removeItem("userDetails")
                 snackBarText.value=t("forms.badCredentials")
                 snackBarVisibility.value=true
             }
@@ -92,6 +96,7 @@ export default{
         rounded
         max-width="600"
         width="100%"
+        
     >
     <v-card class="mr-1 bg-yellow-accent-1 my-2" elevation="5">
         <v-img
@@ -121,6 +126,11 @@ export default{
                 variant="outlined"
                 :rules="[v=>!!v||$t('alerts.usernameRequired')]"
                 required
+                :onkeydown="(event:any)=>{
+                   if(event.code=='Enter'){
+                    validateForm()
+                   }
+                }"
             ></v-text-field>
 
             <v-text-field
@@ -134,6 +144,11 @@ export default{
                 placeholder="Enter your password"
                 variant="outlined"
                 @click:append-inner="toggleMarker"
+                :onkeydown="(event:any)=>{
+                   if(event.code=='Enter'){
+                    validateForm()
+                   }
+                }"
             ></v-text-field>
 
             <br>
