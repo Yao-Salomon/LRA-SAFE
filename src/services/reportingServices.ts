@@ -9,6 +9,7 @@ const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_REPORTING='/rest/services/lab_APIServices/getReportId'
 const TRAIL_URL_TDR_REPORTING='/rest/services/lab_APIServices/getTDRReportId'
 const TRAIL_URL_RUN_REPORTING='/rest/reports/run/'
+const TRAIL_URL_FILE_REF='/rest/files'
 
 
 let data = QueryString.stringify({
@@ -186,6 +187,49 @@ export async function runTDRReport(reportId:string,parameters:any){
             'Authorization': `Bearer ${token}`
         },
         data : dataParameters,
+        responseType:responseType 
+       };
+       
+       const responses=axios.request(configParameter)
+       .then((object) => {
+           const responses=axios.request(configParameter)
+           .then((object) => {
+               
+             return object.data;  
+           })
+           .catch((error) => {
+             console.log(error);
+           });
+         return responses;
+         
+       })
+       .catch((error) => {
+         console.log(error);
+       });
+       return responses;
+   })
+   .catch((error) => {
+
+   });
+
+   return response;
+
+}
+
+export async function getFileByRef(fileRef:any){
+    
+  const response=await  axios.request(config)
+   .then((response) => {
+       let token=response.data.access_token
+       //ResponseType to arraybuffer. 
+       let responseType:ResponseType="arraybuffer"
+       let configParameter = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: (DEBUG?DEBUG_URL+TRAIL_URL_FILE_REF:PROD_URL+TRAIL_URL_FILE_REF)+'?fileRef='+fileRef,
+        headers: { 
+            'Authorization': `Bearer ${token}`
+        },
         responseType:responseType 
        };
        

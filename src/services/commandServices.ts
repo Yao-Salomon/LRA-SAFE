@@ -7,6 +7,7 @@ const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
 const PROD_URL=import.meta.env.VITE_PROD_URL
 const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_DRAFTED='/rest/services/lab_APIServices/fetchDraftedCommand'
+const TRAIL_URL_COMMAND='/rest/services/lab_APIServices/fetchCommands'
 const TRAIL_URL_MANAGE_DRAFTED='/rest/services/lab_APIServices/manageDraftedCommand'
 const TRAIL_URL_MTLS='/rest/services/lab_APIServices/loadMTLs'
 const TRAIL_URL_SITES='/rest/services/lab_APIServices/fetchConstructionSites'
@@ -29,7 +30,42 @@ let config = {
   data : data
 };
 
+export async function fetchCommands(username:string){
+    
+  const response=await  axios.request(config)
+   .then((response) => {
+       let token=response.data.access_token
+       let dataParameters = {
+           "username": username,
+         };
+         
+       let configParameter = {
+       method: 'post',
+       maxBodyLength: Infinity,
+       url: DEBUG?DEBUG_URL+TRAIL_URL_COMMAND:PROD_URL+TRAIL_URL_COMMAND,
+       headers: { 
+           'Authorization': `Bearer ${token}`
+       },
+       data : dataParameters
+       };
+       
+       const responses=axios.request(configParameter)
+       .then((object) => {
+       
+         return object.data;  
+       })
+       .catch((error) => {
+         console.log(error);
+       });
+       return responses;
+   })
+   .catch((error) => {
 
+   });
+
+   return response;
+
+}
 
 export async function fetchDraftedCommand(username:string){
     

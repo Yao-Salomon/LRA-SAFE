@@ -9,8 +9,7 @@
 
             console.log("the router called from the feedback",location.path)
             onMounted(()=>{
-                localStorage.removeItem("lastVisitedPage")
-                localStorage.setItem("lastVisitedPage",location.path)
+                
             })
             return(
                 location

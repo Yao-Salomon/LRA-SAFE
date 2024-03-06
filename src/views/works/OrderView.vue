@@ -8,7 +8,7 @@
     import { onMounted } from 'vue';
     import { useUserSTore } from '@/stores/user';
     import { usePagesStore } from '@/stores/pages';
-    import { useRoute } from 'vue-router';
+    import { useLink, useRoute,useRouter } from 'vue-router';
     import { getReportId, getTDRReportId, runReport, runTDRReport } from '@/services/reportingServices';
     import router from '@/router';
 
@@ -20,7 +20,7 @@ export default{
         let mtlsMappedMaterial:any=[]
         const pageLoading=ref(true)
         const reportLoading=ref(false)
-       
+        const router=useRouter()
         const uniquesMappedMaterial:any=ref([])
         const constructionSites:any=ref([])
         const selectedConstructionSite=ref('')
@@ -272,6 +272,16 @@ export default{
             pageLoading.value=true
             const commandCreation=await createCommand(username.value,selectedConstructionSite.value,finalMaterialWithTrials.value);
             pageLoading.value=false
+            console.log(commandCreation)
+            
+            if(commandCreation.status==200){
+                console.log("The status for creation entered")
+                router.push("/dashboard")
+            }else{
+                snackbar.value=true
+                snackbarText.value=commandCreation.message
+            }
+            
         }
 
         async function launchTDRReport(){
@@ -303,9 +313,6 @@ export default{
 
             pageLoading.value=true
 
-            localStorage.removeItem("lastVisitedPage")
-            localStorage.setItem("lastVisitedPage",location.path)
-            
             const drafted=await fetchDraftedCommand(username.value)
             const mtlsLoaded=await loadMTLs()
             const situationsLoaded=await loadSituations()
@@ -406,7 +413,7 @@ export default{
         </v-btn>
       </template>
     </v-snackbar>
-    <form-wizard @onComplete="creationComplete" class="border rounded-lg" errorColor="red" transition="fade" color="green" step-size="xs" next-button-text="Suivant"> 
+    <form-wizard  @onComplete="creationComplete" class="border rounded-lg" errorColor="red" transition="fade" color="green" step-size="xs" next-button-text="Suivant"> 
         <tab-content :title="$t('UI.commandStepperFirst')" :beforeChange="validateConstructionSites">
             <v-sheet 
                     height="100%"
@@ -701,6 +708,7 @@ export default{
                                                     variant="flat"
                                                     @click="()=>{
                                                         buildFinalCommandList()
+                                                        selectedTrials=[]
                                                         isActive.value=false
                                                     }"
                                                 ></v-btn>
@@ -718,11 +726,11 @@ export default{
                                     <span class="text-body-1">La liste des essais est vide.</span>
                                 </v-chip>
                             </div>
-                           <div class="ma-1" v-for="(item,index) in trialsForOpenedMaterialPanel.trials" else>
+                           <div class="ma-1" v-for="(item,index) in trialsForOpenedMaterialPanel.trials" v-else>
                                 <v-card v-if="index%2==1" variant="tonal" color="green" width="200px" height="120px">
                                     <v-card-item>
                                         <p>
-                                            {{ getTrialByIDUI(trialsForMaterialByCode,item).externalID }}
+                                            {{ getTrialByIDUI(trialsForMaterialByCode,item).abbreviation }}
                                         </p>
                                     </v-card-item>
                                     <v-divider></v-divider>
@@ -731,12 +739,16 @@ export default{
                                             <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
                                             <span>F CFA</span>
                                         </p>
+                                        <v-sheet class="bg-green d-flex pa-1 rounded-lg mt-1" elevation="2">
+                                            <v-btn icon="mdi-plus-thick" color="green" size="sm" class="mr-1"></v-btn>
+                                            <v-btn icon="mdi-minus-thick" color="red" size="sm"></v-btn>
+                                        </v-sheet>
                                     </v-card-text>
                                 </v-card>
                                 <v-card v-else variant="tonal" color="blue" width="200px" height="120px">
                                     <v-card-item>
                                         <p>
-                                            {{ getTrialByIDUI(trialsForMaterialByCode,item).externalID }}
+                                            {{ getTrialByIDUI(trialsForMaterialByCode,item).abbreviation }}
                                         </p>
                                     </v-card-item>
                                     <v-divider></v-divider>
@@ -745,6 +757,10 @@ export default{
                                             <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
                                             <span>F CFA</span>
                                         </p>
+                                        <v-sheet class="bg-blue d-flex pa-1 rounded-lg mt-1" elevation="2">
+                                            <v-btn icon="mdi-plus-thick" color="green" size="sm" class="mr-1"></v-btn>
+                                            <v-btn icon="mdi-minus-thick" color="red" size="sm"></v-btn>
+                                        </v-sheet>
                                     </v-card-text>
                                 </v-card>
                            </div>
