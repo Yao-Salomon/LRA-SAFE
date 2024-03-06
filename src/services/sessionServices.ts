@@ -53,7 +53,7 @@ export async function checkSessionValidity(username:string){
           if(response.data.status==200){
             sessionStore.setSession(true)
             console.log("case session Valid")
-            router.push('/dashboard')
+            router.push('/')
           }else{
             console.log("case session Expired")
             sessionStore.setSession(false)

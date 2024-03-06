@@ -1,16 +1,16 @@
 <script lang="ts">
-    import { DoughnutChart } from 'vue-chart-3';
+    import { DoughnutChart,LineChart, BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart} from 'vue-chart-3';
     import { Chart, registerables } from "chart.js";
     import  { computed, defineComponent, onMounted, ref } from 'vue';
-import { fetchCommands } from '@/services/commandServices';
-import { useUserSTore } from '@/stores/user';
-import { getFileByRef } from '@/services/reportingServices';
+    import { fetchCommands } from '@/services/commandServices';
+    import { useUserSTore } from '@/stores/user';
+    import { getFileByRef } from '@/services/reportingServices';
 
 
     Chart.register(...registerables);
     export default defineComponent({
         name:'Dashboard',
-        components:{DoughnutChart},
+        components:{DoughnutChart,LineChart,BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart},
         setup(){
             const userStore=useUserSTore()
             const username=computed(()=>userStore.getUsername)
@@ -28,16 +28,19 @@ import { getFileByRef } from '@/services/reportingServices';
                     return filter
                 }
             })
+            const chartData=ref([])
+            
 
-            const testData = {
-            labels: ['Commandes', 'Brouillon', 'Traité', 'Retour', 'Reprise'],
-            datasets: [
-                {
-                data: [30, 40, 60, 70, 5],
-                backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-                },
-            ],
-            };
+            const testData =computed(()=>({
+                labels: ['Commandes', 'Initiées', 'Planifiées', 'Traitées', 'Validées','Livrées','Confirmées'],
+                datasets: [
+                    {
+                    label:"Commandes",
+                    data: chartData.value,
+                    backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED','#A5C8ED','#A5C8ED','#A5C8ED'],
+                    },
+                ],
+            }))
             
             async function showOrderReceipt(fileRef:any){
                 
@@ -71,6 +74,9 @@ import { getFileByRef } from '@/services/reportingServices';
                     
                     return 0;
                 });
+                let transferArray:any=[];
+                transferArray.push(30,20,15,12,10,5,1)
+                chartData.value=transferArray
                 commands.value=commandResponse
                 pageLoading.value=false
             })
@@ -80,8 +86,11 @@ import { getFileByRef } from '@/services/reportingServices';
                 showOrderReceipt,
                 pageLoading,
                 reference,
-                commandsFiltered
-
+                commandsFiltered,
+                PolarAreaChart,
+                RadarChart,
+                BubbleChart,
+                ScatterChart
             }
         }
     
@@ -90,7 +99,7 @@ import { getFileByRef } from '@/services/reportingServices';
 
 <template>
     <v-row>
-        <v-col cols="5">
+        <v-col cols="7">
             <div v-if="!pageLoading">
                 <div class="mt-2 ml-2" style="width: 95%">
                     <v-text-field
@@ -101,9 +110,9 @@ import { getFileByRef } from '@/services/reportingServices';
                     />
                 </div>
                 <div v-if="commands.length>0" class="border ml-1 rounded-lg bg-grey-lighten-5 pa-2" style="overflow-y: scroll;width: 95%;height: 450px;">
-                    <div class="mb-2">
+                    <v-sheet :class="{shake:true}" class="bg-blue pa-2 rounded-lg mb-2" elevation="2">
                         <p class="text-body-1 ">Mes commandes</p>
-                    </div>
+                    </v-sheet>
                     <div class="d-flex flex-wrap justify-start">
                         <v-card v-for="(command,index) in commandsFiltered" class="ma-1" width="200px" height="150px" variant="tonal" color="green-darken-1">
                                 <v-card-item>
@@ -137,9 +146,9 @@ import { getFileByRef } from '@/services/reportingServices';
                         </v-card>
                     </div>
                 </div>
-                <div v-else class="d-flex justify-center align-center">
+                <v-sheet :class="{shake:true}" class="d-flex justify-center align-center bg-blue pa-2 rounded-lg mt-1" elevation="2">
                     <p>Aucune commande n'a encore été passée</p>
-                </div>
+                </v-sheet>
             </div>
             <v-skeleton-loader
                 v-else
@@ -147,10 +156,20 @@ import { getFileByRef } from '@/services/reportingServices';
                 width="80%"
                 type="card-avatar, actions,article"
             ></v-skeleton-loader>
-        </v-col cols="7">
+        </v-col>
         <v-col>
-            <p>Récap des commandes</p>
+            <v-sheet :class="{shake:true}" class="bg-blue pa-2 rounded-lg mt-1" elevation="2">
+                <p>Récap des commandes</p>
+            </v-sheet>
+            <BarChart title="love" :chartData="testData"/>
+            <!--
+            <LineChart :chartData="testData"/>
             <DoughnutChart :chartData="testData" />
+            <PolarAreaChart :chartData="testData"/>
+            <RadarChart :chartData="testData"/>
+            <BubbleChart :chartData="testData"/>
+            <ScatterChart :chartData="testData"/>
+            -->
         </v-col>
     </v-row>
 </template>
@@ -165,6 +184,35 @@ import { getFileByRef } from '@/services/reportingServices';
         height: 30px;
         display: block;
         background-color: transparent;
+    }
+
+    .shake {
+        animation: shake 10s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        transform: translate3d(0, 0, 0);
+        animation-iteration-count: infinite;
+    }
+
+    @keyframes shake {
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
     }
 
 </style>

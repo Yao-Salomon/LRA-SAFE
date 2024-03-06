@@ -422,11 +422,14 @@ export default{
                     <v-row v-if="constructionSites.length>0">
                         <v-col>
                             <div class=" text-center ">
-                                <p class="text-h6 font-weight-bold">
-                                    Choisissez un chantier
-                                </p>
+                                <v-sheet :class="{shake:true}" class="bg-blue pa-2 rounded-lg" elevation="2">
+                                    <p class="text-h6 font-weight-bold">
+                                        Choisissez un chantier
+                                    </p>
+                                </v-sheet>
                                 <v-icon class="text-h3" icon="mdi-sign-caution" color="orange"/>
                             </div>
+                            
                             <v-radio-group inline v-model="selectedConstructionSite" class="d-flex justify-center align-center" elevation="3" style="min-height:235px;overflow-y: scroll;">
                                 <div v-for="item in constructionSites" class="d-flex  ma-1 bg-green pa-1 rounded-xl">
                                     <v-card class="bg-green h-100 border py-3 rounded-s-xl d-flex justify-center align-center" rounded="0" >
@@ -798,3 +801,35 @@ export default{
     </form-wizard>
     </v-sheet>
 </template>
+<style>
+
+.shake {
+        animation: shake 10s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        transform: translate3d(0, 0, 0);
+        animation-iteration-count: infinite;
+    }
+
+    @keyframes shake {
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+    }
+
+</style>
