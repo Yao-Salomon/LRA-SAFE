@@ -68,13 +68,13 @@ import { useRoute } from 'vue-router';
           type="card-avatar, actions,article"
         ></v-skeleton-loader>
     </v-sheet>
-    <v-sheet class="bg-light-blue-lighten-4 pa-2 rounded-lg" width="80%" height="90%" style="overflow-y: scroll;" v-else>
+    <v-sheet class=" pa-2 rounded-lg mb-5" width="80%" height="90%" v-else>
         <p class="text-center text-h6 mb-2 font-weight-bold d-flex flex-column justify-center align-center">
             <v-icon icon="mdi-message-badge" color="blue"/>
         </p>
         
         <div v-if="notifications.length>0">
-            <v-card variant="tonal" color="deep-purple" v-for="notification in notifications">
+            <v-card variant="tonal" class="my-2" color="blue" elevation="1"  v-for="notification in notifications">
                 <v-card-text class="text-body-1">
                     {{ notification.message }}
                 </v-card-text>

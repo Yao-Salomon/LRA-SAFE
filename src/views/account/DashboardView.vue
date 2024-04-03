@@ -123,7 +123,7 @@
                                 </v-card-item>
                                 <v-card-text>
                                     <p><span class="font-weight-bold">Date:</span> {{ new Date(command.createdDate).toLocaleDateString("fr-FR") }}</p>
-                                    <p><span class="font-weight-bold">Status:</span> {{command.status}}</p>
+                                    <p><span class="font-weight-bold">Status:</span> <span style="font-weight: bold; font-size:10px;">{{command.status}}</span></p>
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-btn
@@ -146,7 +146,7 @@
                         </v-card>
                     </div>
                 </div>
-                <v-sheet :class="{shake:true}" class="d-flex justify-center align-center bg-blue pa-2 rounded-lg mt-1" elevation="2">
+                <v-sheet v-else :class="{shake:true}" class="d-flex justify-center align-center bg-blue pa-2 rounded-lg mt-1" elevation="2">
                     <p>Aucune commande n'a encore été passée</p>
                 </v-sheet>
             </div>

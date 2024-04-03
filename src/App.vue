@@ -30,18 +30,19 @@ export default {
 
       const avatar=computed(()=>{
         let calculatedAvatar='';
+        if(userDetails!=null){
+          if(Object.keys(userDetails).length>0){
+            if(userDetails.value.firstName!=undefined){
+              calculatedAvatar+=userDetails.value.firstName.charAt(0);
+            }
+            if(userDetails.value.lastName!=undefined){
+              calculatedAvatar+=userDetails.value.lastName.charAt(0)
+            }
+            if(userDetails.value.firstName==undefined || userDetails.value.lastName==undefined){
+              calculatedAvatar==username.value.charAt(0)
+            }
 
-        if(Object.keys(userDetails).length>0){
-          if(userDetails.value.firstName!=undefined){
-            calculatedAvatar+=userDetails.value.firstName.charAt(0);
           }
-          if(userDetails.value.lastName!=undefined){
-            calculatedAvatar+=userDetails.value.lastName.charAt(0)
-          }
-          if(userDetails.value.firstName==undefined || userDetails.value.lastName==undefined){
-            calculatedAvatar==username.value.charAt(0)
-          }
-
         }
         return calculatedAvatar;
       })
@@ -51,6 +52,7 @@ export default {
         if(response.status==200){
           userStore.reset()
           sessionStore.reset()
+          localStorage.removeItem("userDetails")
           router.push('/login')
         }else{
           alert('erreur')
@@ -63,6 +65,7 @@ export default {
 
         pageLoading.value=true;
         checkSessionValidity(username.value)
+        console.log("The username :"+username.value)
         const notificationsResponse=await fetchNotifications(username.value);
         pageLoading.value=false;
 

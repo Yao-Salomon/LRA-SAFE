@@ -742,10 +742,6 @@ export default{
                                             <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
                                             <span>F CFA</span>
                                         </p>
-                                        <v-sheet class="bg-green d-flex pa-1 rounded-lg mt-1" elevation="2">
-                                            <v-btn icon="mdi-plus-thick" color="green" size="sm" class="mr-1"></v-btn>
-                                            <v-btn icon="mdi-minus-thick" color="red" size="sm"></v-btn>
-                                        </v-sheet>
                                     </v-card-text>
                                 </v-card>
                                 <v-card v-else variant="tonal" color="blue" width="200px" height="120px">
@@ -760,10 +756,6 @@ export default{
                                             <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
                                             <span>F CFA</span>
                                         </p>
-                                        <v-sheet class="bg-blue d-flex pa-1 rounded-lg mt-1" elevation="2">
-                                            <v-btn icon="mdi-plus-thick" color="green" size="sm" class="mr-1"></v-btn>
-                                            <v-btn icon="mdi-minus-thick" color="red" size="sm"></v-btn>
-                                        </v-sheet>
                                     </v-card-text>
                                 </v-card>
                            </div>
@@ -776,7 +768,6 @@ export default{
                     </div>
                 </div>
                 <div>
-
                 </div>
             </v-sheet>
         </tab-content>
@@ -807,6 +798,7 @@ export default{
         animation: shake 10s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
         transform: translate3d(0, 0, 0);
         animation-iteration-count: infinite;
+        
     }
 
     @keyframes shake {

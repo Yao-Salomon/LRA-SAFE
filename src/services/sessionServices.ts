@@ -57,6 +57,7 @@ export async function checkSessionValidity(username:string){
           }else{
             console.log("case session Expired")
             sessionStore.setSession(false)
+            localStorage.removeItem("userDetails")
             router.push('/login')
           }
           
