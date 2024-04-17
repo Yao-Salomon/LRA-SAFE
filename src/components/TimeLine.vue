@@ -1,12 +1,34 @@
-<script setup lang="ts">
+<script lang="ts">
+  import { useRouter } from 'vue-router';
 
+  export default{
+    setup(){
+      const router=useRouter();
+
+      function goToOrder(){
+        router.push("order")
+      }
+      function goToDashboard(){
+        router.push("dashboard")
+      }
+      function goToReports(){
+        router.push("dashboard")
+      }
+      return{
+        goToOrder,
+        goToDashboard,
+        goToReports
+      }
+    }
+
+  }
 </script>
 
 
 <template>
-    <div class="d-flex w-100 ">
-          <div class="d-flex overdrop mt-2 ml-12 px-5">
-            <v-timeline direction="vertical">
+    <div class="d-flex w-100">
+          <div class="d-flex flex-column overdrop mt-2 ml-12 px-5">
+            <v-timeline direction="horizontal" side="end">
               <v-timeline-item
                 dot-color="white"
                 fill-dot
@@ -26,6 +48,7 @@
                       variant="elevated"
                       color="blue"
                       prepend-icon="mdi-tag-plus"
+                      @click="goToOrder"
                     >
                       Commencer
                     </v-btn>
@@ -52,6 +75,7 @@
                       variant="elevated"
                       color="green"
                       prepend-icon="mdi-view-dashboard"
+                      @click="goToDashboard"
                     >
                       Tableau de bord
                     </v-btn>
@@ -78,6 +102,7 @@
                       variant="elevated"
                       color="yellow"
                       prepend-icon="mdi-chart-scatter-plot"
+                      @click="goToReports"
                     >
                       Rapports & Etats
                     </v-btn>
@@ -85,6 +110,13 @@
                 </v-card>
               </v-timeline-item>
             </v-timeline>
+            <div class="d-flex mt-2 justify-center align-center" >
+              <v-card>
+                <v-card-item>
+                  
+                </v-card-item>
+              </v-card>
+            </div>
           </div>
         </div>
 </template>

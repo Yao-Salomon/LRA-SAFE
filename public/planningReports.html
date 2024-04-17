@@ -54,10 +54,7 @@
         </style>
 	</head>
 	<body>
-        <#assign commandLine= Root.bands.Data[0].fields.commandLine/>
-        <#assign data= Root.bands.Data[0].fields.data/>
-        <#assign coeff= Root.bands.Data[0].fields.coeff/>
-        <#assign planning=Root.bands.Data[0].fields.planning/>
+        <#assign commandLines= Root.bands.CommandLines[0].fields.commandLines/>
 
         <table border="1" cellpadding="1" cellspacing="1" height="100" width="100%">
             <tbody>
@@ -68,7 +65,7 @@
                     <td style="text-align: center;">
                         <span style="font-size:14px;">
                             <span style="color:#000000">
-                                <strong>PV ABSORPTION D'EAU SUR PAVES SELON NF EN 1338 02/2004 </strong>
+                                <strong>Planning de réalisation d'essai </strong>
                             </span>
                         </span>
                     </td>
@@ -78,11 +75,33 @@
                 </tr>
             </tbody>
         </table>
-        <table border="0" cellspacing="0"><colgroup width="75"></colgroup> <colgroup span="2" width="97"></colgroup> <colgroup width="241"></colgroup> <colgroup width="75"></colgroup> <colgroup width="208"></colgroup> <colgroup width="75"></colgroup> <colgroup span="2" width="124"></colgroup>
+        <table border="0" cellspacing="0">
+          <colgroup width="75"></colgroup> 
+          <colgroup span="2" width="97"></colgroup>
+          <colgroup width="241"></colgroup>
+          <colgroup width="75"></colgroup>
+          <colgroup width="208"></colgroup>
+          <colgroup width="75"></colgroup>
+          <colgroup span="2" width="124"></colgroup>
             <tbody>
             <tr>
-            <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000;" colspan="2" align="center" valign="middle" height="87"><strong><em><span style="color: #ff0000; font-family: Calibri Light; font-size: large;">N.B:</span></em></strong></td>
-            <td style="border: 1px solid #000000;" colspan="7" align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">Les essais sont programm&eacute;s en jours ouvrables, par ordre de commande et en tenant compte de la quantit&eacute; de mat&eacute;riau disponible. En cas d'insuffisance de mat&eacute;riau pour la r&eacute;alisation de tous les essais command&eacute;s, seuls les essais aux quantit&eacute;s satisfaisantes seront r&eacute;alis&eacute;s. Les essais manqu&eacute;s pour insuffisance de mat&eacute;riau seront annul&eacute;s et feront l'objet d'un nouveau bon de commande.</span></em></td>
+            <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000;" colspan="2" align="center" valign="middle" height="87">
+              <strong>
+                <em>
+                  <span style="color: #ff0000; font-family: Calibri Light; font-size: large;">
+                    N.B:
+                  </span>
+                </em>
+              </strong>
+            </td>
+
+            <td style="border: 1px solid #000000;" colspan="7" align="left" valign="middle">
+              <em>
+                <span style="font-family: Calibri Light; font-size: xx-small;">
+              Les essais sont programm&eacute;s en jours ouvrables, par ordre de commande et en tenant compte de la quantit&eacute; de mat&eacute;riau disponible. En cas d'insuffisance de mat&eacute;riau pour la r&eacute;alisation de tous les essais command&eacute;s, seuls les essais aux quantit&eacute;s satisfaisantes seront r&eacute;alis&eacute;s. Les essais manqu&eacute;s pour insuffisance de mat&eacute;riau seront annul&eacute;s et feront l'objet d'un nouveau bon de commande.
+                </span>
+              </em>
+            </td>
             </tr>
             <tr>
             <td align="center" valign="middle" height="17"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
@@ -94,56 +113,37 @@
             <td align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
             <td align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
             <td align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            </tr>
-            <tr>
-            <td style="border-top: 2px double #000000; border-bottom: 1px solid #000000; border-left: 2px double #000000;" colspan="2" align="center" valign="middle" height="39"><strong><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">Bon de commande</span></strong></td>
-            <td style="border-top: 2px double #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="left" valign="middle"><strong><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">D&eacute;lai pr&eacute;visionnel de r&eacute;alisation de la prestation</span></strong></td>
-            <td style="border-top: 2px double #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="left" valign="middle"><strong><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></strong></td>
-            <td style="border-top: 2px double #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 2px double #000000;" align="left" valign="middle"><strong><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></strong></td>
-            <td style="border-top: 2px double #000000; border-bottom: 1px solid #000000; border-left: 2px double #000000;" colspan="2" align="center" valign="middle"><strong><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">Date pr&eacute;visionnelle de d&eacute;marrage</span></strong></td>
-            <td style="border-top: 2px double #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 2px double #000000;" colspan="2" align="center" valign="middle"><strong><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">Date pr&eacute;visionnelle de fin</span></strong></td>
-            </tr>
-            <tr>
-            <td style="border-top: 1px solid #000000; border-bottom: 2px double #000000; border-left: 2px double #000000;" colspan="2" align="center" valign="middle" height="39"><strong><span style="color: #0000ff; font-family: Calibri Light;">&nbsp;</span></strong></td>
-            <td style="border-top: 1px solid #000000; border-bottom: 2px double #000000; border-left: 1px solid #000000; border-right: 2px double #000000;" colspan="3" align="center" valign="middle"><strong><span style="color: #0000ff; font-family: Calibri Light;">&nbsp;</span></strong></td>
-            <td style="border-top: 1px solid #000000; border-bottom: 2px double #000000; border-left: 2px double #000000;" colspan="2" align="center" valign="middle"><strong><span style="color: #0000ff; font-family: Calibri Light;">&nbsp;</span></strong></td>
-            <td style="border-top: 1px solid #000000; border-bottom: 2px double #000000; border-left: 1px solid #000000; border-right: 2px double #000000;" colspan="2" align="center" valign="middle"><strong><span style="color: #0000ff; font-family: Calibri Light;">&nbsp;</span></strong></td>
-            </tr>
-            <tr>
-            <td align="center" valign="middle" height="17"><strong><em><span style="color: #ff0000; font-family: Calibri Light; font-size: large;">&nbsp;</span></em></strong></td>
-            <td align="center" valign="middle"><strong><em><span style="color: #ff0000; font-family: Calibri Light; font-size: large;">&nbsp;</span></em></strong></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            <td align="left" valign="middle"><em><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></em></td>
-            </tr>
-            <tr>
-            <td style="border-bottom: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle" height="68"><span style="font-family: Calibri Light; font-size: xx-small;">Section mat&eacute;riau</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Code mat&eacute;riau</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Essai</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Crit&egrave;re</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Nombre d'essais</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Quantit&eacute; totale disponible</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">D&eacute;lai (jour)</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Date pr&eacute;visionnelle de d&eacute;marrage</span></td>
-            <td style="border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">Date pr&eacute;visionnelle de fin</span></td>
-            </tr>
-            <tr>
-            <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000;" align="right" valign="middle" height="56"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000;" align="left" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border: 1px solid #000000;" align="left" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border: 1px solid #000000;" align="center" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border: 1px solid #000000;" align="left" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border: 1px solid #000000;" align="left" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border: 1px solid #000000;" align="left" valign="middle"><span style="font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            <td style="border: 1px solid #000000;" align="left" valign="middle"><span style="color: #ff0000; font-family: Calibri Light; font-size: xx-small;">&nbsp;</span></td>
-            </tr>
+            </tr>            
             </tbody>
-            </table>
-            <p>&nbsp;</p>
+        </table>
+        
+        <table border="1" cellspacing="0" >
+          <thead>
+            <tr>
+              <th>Section du matériau</th>
+              <th>Code du matériau</th>
+              <th>Essai</th>
+              <th>Critère</th>
+              <th>Délai (jours)</th>
+              <th>Quantité disponible</th>
+              <th>Date de démarrage</th>
+              <th>Date de fin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <#list commandLines as commandLine>
+                <tr>
+                    <td style="word-wrap: break-word;">${commandLine.materiau.section}</td>
+                    <td style="word-wrap: break-word;">${commandLine.materialCode}</td>
+                    <td style="word-wrap: break-word;">${commandLine.trials.code}</td>
+                    <td style="word-wrap: break-word;">${commandLine.planning.criteria}</td>
+                    <td style="word-wrap: break-word;">${commandLine.planning.delay}</td>
+                    <td style="word-wrap: break-word;">${commandLine.planning.totalQuantity}</td>
+                    <td style="word-wrap: break-word;">${commandLine.planning.startDate}</td>
+                    <td style="word-wrap: break-word;">${commandLine.planning.endDate}</td>
+               </tr>
+            </#list>
+          </tbody>
+        </table>
 	</body>
 </html>

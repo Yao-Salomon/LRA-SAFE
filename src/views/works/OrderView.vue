@@ -182,6 +182,11 @@ export default{
                 if(codeValid){
                     orderedMaterialList.push(lineObject); 
                     selectedMaterialCodes.value=[...orderedMaterialList];
+                    currentBoxFieldValue.value="";
+                    currentDatePrelevement.value="";
+                    currentOrigine.value="";
+                    currentSituation.value="";
+            
                 }else{
                    snackbar.value=true
                    snackbarText.value="Cette ligne existe déjà"
@@ -460,9 +465,7 @@ export default{
                     width="100%"
                 >   
                     <v-row>
-                        <v-col
-
-                        >
+                        <v-col>
                             <v-select
                                 prepend-inner-icon="mdi-leaf-circle"
                                 :items="uniquesMappedMaterial"
@@ -524,10 +527,7 @@ export default{
                             </v-btn>
                             
                         </v-col>
-                        <v-col
-                            cols="5"
-
-                        >
+                        <v-col cols="5">
                             <v-card style="height: 300px; overflow-y: scroll;">
                                 <v-card-title class="d-flex align-center">
                                     <v-icon icon="mdi-book-open-page-variant" color="blue"/>

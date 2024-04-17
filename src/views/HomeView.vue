@@ -6,7 +6,7 @@
 
 <template>
   <v-sheet
-    class="bg-white"
+    class="bg-blue"
     width="100%"
     height="100%"
     
