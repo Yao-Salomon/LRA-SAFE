@@ -28,7 +28,7 @@
 <template>
     <div class="d-flex w-100">
           <div class="d-flex flex-column overdrop mt-2 ml-12 px-5">
-            <v-timeline direction="horizontal" side="end">
+            <v-timeline >
               <v-timeline-item
                 dot-color="white"
                 fill-dot
@@ -110,13 +110,6 @@
                 </v-card>
               </v-timeline-item>
             </v-timeline>
-            <div class="d-flex mt-2 justify-center align-center" >
-              <v-card>
-                <v-card-item>
-                  
-                </v-card-item>
-              </v-card>
-            </div>
           </div>
         </div>
 </template>

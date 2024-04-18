@@ -9,22 +9,9 @@
     class="bg-blue"
     width="100%"
     height="100%"
-    
+    style="background-image: url('./src/assets/slide-4.jpg');background-size: cover;"
   >
-    <v-carousel
-      progress="green"
-      cycle
-      hide-delimiter-background
-      :show-arrows="false"
-      hide-delimiters
-    >
-      <v-carousel-item
-        src="./src/assets/slide-4.jpg"
-        cover
-      >
-        <Timeline/>
-      </v-carousel-item> 
-    </v-carousel>
+    <Timeline/>
 
   </v-sheet>
 </template>
