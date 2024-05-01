@@ -186,7 +186,6 @@ export default{
                     currentDatePrelevement.value="";
                     currentOrigine.value="";
                     currentSituation.value="";
-            
                 }else{
                    snackbar.value=true
                    snackbarText.value="Cette ligne existe déjà"
