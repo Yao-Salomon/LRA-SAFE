@@ -110,7 +110,7 @@
       
       table th,
       table td {
-        padding: 20px;
+        padding: 15px;
         background: #EEEEEE;
         text-align: center;
         border-bottom: 1px solid #FFFFFF;
@@ -134,7 +134,7 @@
       
       table .no {
         color: #FFFFFF;
-        font-size: 1.6em;
+        font-size: 1.2em;
         background: #57B223;
       }
       
@@ -201,8 +201,9 @@
   </style>
 </head>
 <body>
-    <#assign commandLines= Root.bands.Data[0].fields.commandLines/>
+    <#assign commandLines= Root.bands.Data[0].fields.lines/>
     <#assign command= Root.bands.Data[0].fields.command/>
+    <#assign total= Root.bands.Data[0].fields.total/>
     <#assign inputFormat = "yyyy-MM-dd'T'HH:mm">
     <#assign outputFormat = "EEEE, MMMM dd, yyyy, hh:mm a '('zzz')'">
     <div id="footer">
@@ -248,33 +249,37 @@
               </tr>
             </thead>
             <tbody>
+              <#assign i=1/>
+              <#list commandLines as line>
               <tr>
-                <td class="no">01</td>
-                <td class="desc"><h3>Website Design</h3>Creating a recognizable design solution based on the company's existing visual identity</td>
-                <td class="unit">$40.00</td>
-                <td class="qty">30</td>
-                <td class="total">$1,200.00</td>
+                <td class="no">${i}</td>
+                <td class="desc">
+                  <p>
+                    <span style="font-weight: bold;">-</span>${line.materiau.externalID}<br/>
+                    <span style="font-weight: bold;">-</span>${line.trials.externalID}<br/>
+                    <span style="font-weight: bold;">-</span>${line.samplingDate?date(inputFormat)}<br/>
+                  </p>
+                </td>
+                <#if command.constructionSite.siteType=="INTERN">
+                <td class="unit">${line.trials.internalUnitPrice}</td>
+                <#else>
+                <td class="unit">${line.trials.unitPrice}</td>
+                </#if>
+                <td class="qty">1</td>
+                <#if command.constructionSite.siteType=="INTERN">
+                <td class="total">${line.trials.internalUnitPrice}</td>
+                <#else>
+                <td class="total">${line.trials.unitPrice}</td>
+                </#if>
               </tr>
-              <tr>
-                <td class="no">02</td>
-                <td class="desc"><h3>Website Development</h3>Developing a Content Management System-based Website</td>
-                <td class="unit">$40.00</td>
-                <td class="qty">80</td>
-                <td class="total">$3,200.00</td>
-              </tr>
-              <tr>
-                <td class="no">03</td>
-                <td class="desc"><h3>Search Engines Optimization</h3>Optimize the site for search engines (SEO)</td>
-                <td class="unit">$40.00</td>
-                <td class="qty">20</td>
-                <td class="total">$800.00</td>
-              </tr>
+              <#assign i=i+1/>
+              </#list>
             </tbody>
             <tfoot>
               <tr>
                 <td colspan="2"></td>
-                <td colspan="2">SUBTOTAL</td>
-                <td>$5,200.00</td>
+                <td colspan="2">TOTAL</td>
+                <td>${total}</td>
               </tr>
               <tr>
                 <td colspan="2"></td>
