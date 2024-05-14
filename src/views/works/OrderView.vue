@@ -772,15 +772,20 @@ export default{
         </tab-content>
         <tab-content :title="$t('UI.commandStepperFourth')">
             <v-sheet height="300px" class="border pa-1 d-flex flex-column">   
-                <div class="d-flex justify-center w-100">
+                <div class="d-flex justify-center w-100 mb-2">
                     <v-chip class="text-body-1" prepend-icon="mdi-cart" variant="tonal" color="blue">Finalisation de la commande</v-chip>
                 </div>
-                <div>
-                    <div class="" v-for="item in finalMaterialWithTrials">
-                        <v-card>
+                <div class="d-flex flex-row" style="overflow-y: scroll">
+                    <div class=" ma-2 " v-for="item in finalMaterialWithTrials">
+                        <v-card height="120px">
+                            <v-card-item class="font-weight-bold d-flex justify-content-center align-items-center">
+                                <v-alert variant="outlined" color="green">
+                                    <v-icon icon="mdi-domain" size="large" color="green-darken-2"></v-icon>
+                                    {{ item.materialCode }}
+                                </v-alert>
+                            </v-card-item>
                             <v-card-item>
-                                <p><span>Code: </span>{{ item.materialCode }}</p>
-                                <p>{{ item.trials.length }}</p>
+                                <p><span>Quantité: </span>{{ item.trials.length }}</p>
                             </v-card-item>
                         </v-card>
                     </div>

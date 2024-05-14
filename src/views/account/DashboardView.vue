@@ -63,6 +63,7 @@
             }
             onMounted(async ()=>{
                 const commandResponse=await fetchCommands(username.value)
+                console.log("The command list",commandResponse);
                 commandResponse.sort((a:any,b:any)=>{
                     let dateA=new Date(a.createdDate);
                     let dateB=new Date(b.createdDate);
