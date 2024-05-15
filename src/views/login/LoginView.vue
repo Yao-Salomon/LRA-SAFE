@@ -4,6 +4,7 @@
     import { useRouter } from 'vue-router';
     import {logUserIn} from '@/services/loginServices';
     import { useSessionStore } from '@/stores/session';
+    import {useKeyStore} from '@/stores/userDetails';
     import { useUserSTore } from '@/stores/user';
     import {useTranslation} from "i18next-vue";
 
@@ -17,6 +18,7 @@ export default{
 
         
         const userStore=useUserSTore()
+        const credentialsStore=useKeyStore()
         const sessionStore=useSessionStore()
 
         const username=ref("")
@@ -50,20 +52,18 @@ export default{
            if(valid){
             loggingIn.value=true
             const serviceResponse=await logUserIn(username.value,password.value)
+            userStore.reset()
+            credentialsStore.reset()
             if(serviceResponse.response.status==200){
-
-                userStore.reset()
                 badCredentials.value=false
                 userStore.setUsername(serviceResponse.user.username)
-                localStorage.setItem("userDetails",JSON.stringify(serviceResponse.user))
+                credentialsStore.setUserInfos(serviceResponse.user)
                 sessionStore.setSession(true)
                 loggingIn.value=false
                 router.push('/')
             }else{
-                userStore.reset()
                 badCredentials.value=true
                 loggingIn.value=false
-                localStorage.removeItem("userDetails")
                 snackBarText.value=t("forms.badCredentials")
                 snackBarVisibility.value=true
             }

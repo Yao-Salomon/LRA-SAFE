@@ -9,10 +9,12 @@ export const useUserSTore = defineStore('user', {
     return {
       username: '',
     };
+
   },
   getters:{
     getUsername:(state)=>{
       return state.username
+
     }
   },
   actions:{

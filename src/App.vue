@@ -1,12 +1,16 @@
 <script lang="ts">
-import { RouterLink, RouterView,useRouter,useRoute } from 'vue-router'
+import { RouterLink, RouterView,useRouter,useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { ref,computed,onMounted } from 'vue';
 import {checkSessionValidity} from '@/services/sessionServices';
 import { useTokenStore } from '@/stores/token';
 import { useUserSTore } from '@/stores/user';
+import { useNotifStore } from '@/stores/notifications';
 import {useSessionStore} from '@/stores/session'
 import {logUserOut} from '@/services/loginServices'
+import {useKeyStore} from '@/stores/userDetails';
 import { fetchNotifications } from './services/notificationsServices';
+import { onUpdated } from 'vue';
+import { onBeforeUpdate } from 'vue';
 
 
 export default {
@@ -16,29 +20,32 @@ export default {
 
       const drawer =ref(true);
       const location=useRoute()
-      const userDetails:any=ref({})
       const router=useRouter();
       const userStore=useUserSTore();
+      const credentialsStore=useKeyStore();
       const tokenStore=useTokenStore();
       const sessionStore=useSessionStore();
-      const notifications=ref([]);
+      const notifcationsStore=useNotifStore();
       const pageLoading=ref(false);
 
       const tokenJson=computed(()=>tokenStore.getToken)
       const username=computed(()=>userStore.getUsername)
       const session=computed(()=>sessionStore.getSession)
+      const credentials=computed(()=>credentialsStore.getUserInfos)
+     const notifications=computed(()=>notifcationsStore.getContent)
+     
 
       const avatar=computed(()=>{
         let calculatedAvatar='';
-        if(userDetails!=null){
-          if(Object.keys(userDetails).length>0){
-            if(userDetails.value.firstName!=undefined){
-              calculatedAvatar+=userDetails.value.firstName.charAt(0);
+        if(credentials!=null){
+          if(Object.keys(credentials).length>0){
+            if(credentials.value.firstName!=undefined){
+              calculatedAvatar+=credentials.value.firstName.charAt(0);
             }
-            if(userDetails.value.lastName!=undefined){
-              calculatedAvatar+=userDetails.value.lastName.charAt(0)
+            if(credentials.value.lastName!=undefined){
+              calculatedAvatar+=credentials.value.lastName.charAt(0)
             }
-            if(userDetails.value.firstName==undefined || userDetails.value.lastName==undefined){
+            if(credentials.value.firstName==undefined || credentials.value.lastName==undefined){
               calculatedAvatar==username.value.charAt(0)
             }
 
@@ -52,7 +59,8 @@ export default {
         if(response.status==200){
           userStore.reset()
           sessionStore.reset()
-          localStorage.removeItem("userDetails")
+          credentialsStore.reset()
+
           router.push('/login')
         }else{
           alert('erreur')
@@ -66,27 +74,28 @@ export default {
         pageLoading.value=true;
         checkSessionValidity(username.value)
         console.log("The username :"+username.value)
-        const notificationsResponse=await fetchNotifications(username.value);
-        pageLoading.value=false;
+        console.log("The credentials",credentials.value)
 
-        notifications.value=notificationsResponse;
-        userDetails.value=JSON.parse(localStorage.getItem("userDetails")!);
-        console.log("The user details",userDetails.value);
+        const notificationsResponse=await fetchNotifications(username.value);
+        notifcationsStore.setContent(notificationsResponse)
+        pageLoading.value=false;
+        console.log("The notifications are : ",notifications.value)
       })
 
       // expose to template and other options API hooks
       return {
         username,
+        credentials,
         drawer,
         tokenJson,
         userStore,
         session,
         avatar,
-        userDetails,
         logout,
         notifications,
         pageLoading,
-        router
+        router,
+        
       }
     },
 
@@ -102,8 +111,8 @@ export default {
     <v-navigation-drawer v-if="session" v-model="drawer" expand-on-hover rail>
         <v-list>
           <v-list-item
-            :title="userDetails.firstName+' '+userDetails.lastName"
-            :subtitle="userDetails.email"
+            :title="credentials.firstName+' '+credentials.lastName"
+            :subtitle="credentials.email"
             prepend-icon="mdi-account-tie"
           >
           </v-list-item>
@@ -165,7 +174,7 @@ export default {
         <v-badge color="deep-orange" :content="notifications.length">
           <v-icon color="deep-purple-lighten-5">mdi-bell</v-icon>
         </v-badge> 
-      </v-btn>  
+      </v-btn> 
       <v-spacer></v-spacer>    
         <v-menu v-if="session">
           <template v-slot:activator="{props}">
