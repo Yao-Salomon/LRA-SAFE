@@ -32,12 +32,12 @@
             
 
             const testData =computed(()=>({
-                labels: ['Commandes', 'Initiées', 'Planifiées', 'Traitées', 'Validées','Livrées','Confirmées'],
+                labels: ['Commandes', 'Initiées', 'Planifiées', 'Traitées', 'Validées','Livrées','Confirmées','Bloquées'],
                 datasets: [
                     {
                     label:"Commandes",
                     data: chartData.value,
-                    backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED','#A5C8ED','#A5C8ED','#A5C8ED'],
+                    backgroundColor: ['#004FF9', '#FFF94C', '#ff0084', '#ff0084', '#fcb045','#A5C8ED','#A5C8ED','#A5C8ED'],
                     },
                 ],
             }))
@@ -75,8 +75,36 @@
                     
                     return 0;
                 });
+                let createdCommands=commandResponse.filter((el:any)=>{
+                    return el.status=="CREATED" || el.status=="INITIATED" || el.status=="PLANNED" || el.status=="PLANNING_APPROVED" || el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let initiatedCommands=commandResponse.filter((el:any)=>{
+                    return el.status=="INITIATED" || el.status=="PLANNED" || el.status=="PLANNING_APPROVED" || el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let plannedCommands=commandResponse.filter((el:any)=>{
+                    return el.status=="PLANNED" ||el.status=="PLANNING_APPROVED" || el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let planning_approved =new Array(commandResponse).filter((el:any)=>{
+                    return el.status=="PLANNING_APPROVED" ||el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let treatedCommands =new Array(commandResponse).filter((el:any)=>{
+                    return el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let validatedCommands =new Array(commandResponse).filter((el:any)=>{
+                    return el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let deliveredCommands =new Array(commandResponse).filter((el:any)=>{
+                    return el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                })
+                let confirmedCommands =new Array(commandResponse).filter((el:any)=>{
+                    return el.status=="CONFIRMED";
+                })
+                let blockedCommands =new Array(commandResponse).filter((el:any)=>{
+                    return el.status=="BLOCKED";
+                })
+
                 let transferArray:any=[];
-                transferArray.push(30,20,15,12,10,5,1)
+                transferArray.push(createdCommands.length,initiatedCommands.length,plannedCommands.length,treatedCommands.length,deliveredCommands.length,confirmedCommands.length,blockedCommands.length)
                 chartData.value=transferArray
                 commands.value=commandResponse
                 pageLoading.value=false

@@ -2,6 +2,8 @@ import axios from "axios";
 import QueryString from "qs";
 import { useSessionStore } from "../stores/session";
 import { useRouter } from 'vue-router'
+import { useUserSTore } from "@/stores/user";
+import { useKeyStore } from "@/stores/userDetails";
 const DEBUG=import.meta.env.VITE_DEBUG
 const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
 const PROD_URL=import.meta.env.VITE_PROD_URL
@@ -49,6 +51,8 @@ export async function checkSessionValidity(username:string){
         .then((response) => {
           
           const sessionStore=useSessionStore();
+          const userStore=useUserSTore();
+          const credentialsStore=useKeyStore();
 
           if(response.data.status==200){
             sessionStore.setSession(true)
@@ -57,7 +61,8 @@ export async function checkSessionValidity(username:string){
           }else{
             console.log("case session Expired")
             sessionStore.setSession(false)
-            localStorage.removeItem("userDetails")
+            userStore.reset()
+            credentialsStore.reset()
             router.push('/login')
           }
           

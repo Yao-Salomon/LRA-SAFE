@@ -7,6 +7,8 @@
     import {useKeyStore} from '@/stores/userDetails';
     import { useUserSTore } from '@/stores/user';
     import {useTranslation} from "i18next-vue";
+import { fetchNotifications } from '@/services/notificationsServices';
+import { useNotifStore } from '@/stores/notifications';
 
 export default{
     created () {
@@ -20,6 +22,8 @@ export default{
         const userStore=useUserSTore()
         const credentialsStore=useKeyStore()
         const sessionStore=useSessionStore()
+        const notifcationsStore=useNotifStore();
+
 
         const username=ref("")
         const password=ref("")
@@ -60,6 +64,8 @@ export default{
                 credentialsStore.setUserInfos(serviceResponse.user)
                 sessionStore.setSession(true)
                 loggingIn.value=false
+                const notificationsResponse=await fetchNotifications(username.value);
+                notifcationsStore.setContent(notificationsResponse)
                 router.push('/')
             }else{
                 badCredentials.value=true

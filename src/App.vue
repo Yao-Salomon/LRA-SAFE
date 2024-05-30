@@ -28,6 +28,7 @@ export default {
       const notifcationsStore=useNotifStore();
       const pageLoading=ref(false);
 
+
       const tokenJson=computed(()=>tokenStore.getToken)
       const username=computed(()=>userStore.getUsername)
       const session=computed(()=>sessionStore.getSession)
@@ -60,7 +61,7 @@ export default {
           userStore.reset()
           sessionStore.reset()
           credentialsStore.reset()
-
+          notifcationsStore.reset()
           router.push('/login')
         }else{
           alert('erreur')
@@ -70,7 +71,6 @@ export default {
       
       
       onMounted(async ()=>{
-
         pageLoading.value=true;
         checkSessionValidity(username.value)
         console.log("The username :"+username.value)
@@ -97,10 +97,6 @@ export default {
         router,
         
       }
-    },
-
-    mounted() {
-      
     },
   }
 </script>

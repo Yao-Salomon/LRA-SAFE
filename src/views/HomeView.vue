@@ -1,7 +1,31 @@
-<script setup lang="ts">
+<script lang="ts">
+  import { ref,computed,onMounted } from 'vue';
   import TheWelcome from '../components/TheWelcome.vue'
   import Timeline from '../components/TimeLine.vue'
+  import {checkSessionValidity} from '@/services/sessionServices';
+  import { useUserSTore } from '@/stores/user';
 
+
+
+  export default{
+    setup(){
+      const userStore=useUserSTore();
+      const username=computed(()=>userStore.getUsername)
+
+      onMounted(async ()=>{
+        checkSessionValidity(username.value)
+        console.log("The username :"+username.value)
+      })
+      return{
+        
+      }
+
+    },
+    components:{
+      Timeline
+    }
+    
+  }
 </script>
 
 <template>
