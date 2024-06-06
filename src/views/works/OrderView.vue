@@ -2,7 +2,7 @@
     import { ref } from 'vue'
     import {useTranslation} from "i18next-vue";
     import {fetchDraftedCommand,manageDraftedCommand,loadMTLs, fetchConstructionSites, loadSituations, createCommand} from "@/services/commandServices";
-    import {checkValidCode, filterArrayUnique, getAbbrById, getConstructionSiteById, getExternalIDByAbbr, getExternalIDById, getMaterialAbbrById, getMaterialByCode, getMaterialIDByCode, getTrialsByCode,getTrialByID,getMaterialObjectByCode} from "@/utils"
+    import {checkValidCode, filterArrayUnique, getAbbrById, getConstructionSiteById, getExternalIDByAbbr, getExternalIDById, getMaterialAbbrById, getMaterialByCode, getMaterialIDByCode, getTrialsByCode,getTrialByID,getMaterialObjectByCode, getWaysById} from "@/utils"
     import { computed } from 'vue';
 
     import { onMounted } from 'vue';
@@ -25,7 +25,6 @@ export default{
         const constructionSites:any=ref([])
         const selectedConstructionSite=ref('')
         
-        
         const activity=ref(false)
         const draftedCommand=ref(false)
         const snackbar=ref(false)
@@ -41,6 +40,7 @@ export default{
         const currentOrigine=ref("");
         const currentSituation=ref("");
         const openedMaterialPanel=ref();
+        const currentDetails=ref("");
 
         const runReportLoading=ref(false)
 
@@ -58,11 +58,12 @@ export default{
         const userStore=useUserSTore()
 
         const username=computed(()=>userStore.getUsername)
-        const addBtnActive=computed(()=>currentBoxFieldValue.value&&currentSituation.value.length>0&&currentDatePrelevement.value.length>0&&currentOrigine.value.length>0)
+        const addBtnActive=computed(()=>currentBoxFieldValue.value&&currentSituation.value.length>0&&currentDatePrelevement.value.length>0&&currentOrigine.value.length>0&&currentDetails.value.length>0)
         const addBtnToFinalActive=computed(()=>materialToMapTrial.value&&selectedTrials.value.length>0)
         const listOfTrials=computed(()=>fetchTrialsRM(materialToMapTrial.value))
         const constructionSiteExternalId=computed(()=>getConstructionSiteById(constructionSites.value,selectedConstructionSite.value))
-        
+        const selectedConstructionSiteWays=computed(()=>getWaysById(constructionSites.value,selectedConstructionSite.value))
+
         const openedMaterialPanelExternalID=computed(()=>{
             
             if(openedMaterialPanel.value==undefined){
@@ -165,6 +166,7 @@ export default{
             lineObject["samplingDate"]=currentDatePrelevement.value;
             lineObject["origin"]=currentOrigine.value;
             lineObject["situation"]=currentSituation.value;
+            lineObject["details"]=currentDetails.value
             
             let materialCode=getMaterialAbbrById(uniquesMappedMaterial.value,currentBoxFieldValue.value,currentDatePrelevement.value,currentOrigine.value,currentSituation.value);
             let materialExternalID=getExternalIDById(uniquesMappedMaterial.value,currentBoxFieldValue.value)
@@ -255,6 +257,7 @@ export default{
             lineObject['samplingDate']=material.samplingDate
             lineObject["origin"]=material.origin;
             lineObject["situation"]=material.situation;
+            lineObject["details"]=material.details
             lineObject['materialCode']=openedMaterialPanel.value;
             lineObject['trials']=selectedTrials.value
 
@@ -321,8 +324,6 @@ export default{
             const mtlsLoaded=await loadMTLs()
             const situationsLoaded=await loadSituations()
             constructionSites.value=await fetchConstructionSites(username.value);
-
-            
             situations.value=situationsLoaded
         
             
@@ -371,6 +372,7 @@ export default{
             runReportLoading,
             launchTDRReport,
             constructionSiteExternalId,
+            selectedConstructionSiteWays,
             openedMaterialPanel,
             openedMaterialPanelExternalID,
             trialsForOpenedMaterialPanel,
@@ -381,7 +383,8 @@ export default{
             finalMaterialWithTrials,
             validateFinalList,
             pageLoading,
-            reportLoading
+            reportLoading,
+            currentDetails
 
         }
     }
@@ -413,7 +416,7 @@ export default{
           variant="text"
           @click="snackbar = false"
         >
-          Fermer
+        {{ $t('forms.close') }}
         </v-btn>
       </template>
     </v-snackbar>
@@ -511,11 +514,21 @@ export default{
                             >
                             </v-select>
                             <v-text-field
-                                label="Origine"
-                                prepend-inner-icon="mdi-map-marker-radius"
-                                v-model="currentOrigine"
+                                label="Détails"
+                                prepend-inner-icon="mdi-details"
+                                v-model="currentDetails"
                             >
                             </v-text-field>
+                            <v-select
+                                label="Origine"
+                                prepend-inner-icon="mdi-palette-swatch"
+                                :items="selectedConstructionSiteWays"
+                                item-value="abbreviation"
+                                hide-no-data
+                                item-title="externalID"
+                                v-model="currentOrigine"
+                            >
+                            </v-select>
                             <v-btn
                                 icon="mdi-folder-plus"
                                 :disabled="!addBtnActive"
@@ -585,6 +598,14 @@ export default{
                                                         {{ item.origin }}
                                                     </span>
                                                 </p>
+                                                <p class="d-flex align-center">
+                                                    <span class="font-weight-bold mr-2"> 
+                                                        Détails:  
+                                                    </span>
+                                                    <span>
+                                                        {{ item.details }}
+                                                    </span>
+                                                </p>
                                             </v-expansion-panel-text>
                                         </v-expansion-panel>
                                     </v-expansion-panels>
@@ -650,6 +671,14 @@ export default{
                                     </span>
                                     <span>
                                         {{ item.origin }}
+                                    </span>
+                                </p>
+                                <p class="d-flex align-center">
+                                    <span class="font-weight-bold mr-2"> 
+                                        Détails:  
+                                    </span>
+                                    <span>
+                                        {{ item.details }}
                                     </span>
                                 </p>
                             </v-expansion-panel-text>

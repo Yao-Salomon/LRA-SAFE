@@ -86,6 +86,20 @@ export function getConstructionSiteById(container:any,id:any){
     
 }
 
+export function getWaysById(container:any,id:any){
+    
+    if(Object.keys(container).length>0 && id.length>0){
+        let constructionSite=container.filter((element:any,index:number)=>{
+            return element.id==id;
+        })
+        
+        return constructionSite[0].ways
+    }else{
+        return [];
+    }
+    
+}
+
 export function getMaterialByCode(container:any,code:any){
     console.log("The probable problem source is: entered")
     if(Object.keys(container).length>0 && code.length>0){

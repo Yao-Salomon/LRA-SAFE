@@ -7,8 +7,8 @@
     import {useKeyStore} from '@/stores/userDetails';
     import { useUserSTore } from '@/stores/user';
     import {useTranslation} from "i18next-vue";
-import { fetchNotifications } from '@/services/notificationsServices';
-import { useNotifStore } from '@/stores/notifications';
+    import { fetchNotifications } from '@/services/notificationsServices';
+    import { useNotifStore } from '@/stores/notifications';
 
 export default{
     created () {
@@ -18,7 +18,6 @@ export default{
         const router=useRouter()
         const {i18next,t}=useTranslation();
 
-        
         const userStore=useUserSTore()
         const credentialsStore=useKeyStore()
         const sessionStore=useSessionStore()
