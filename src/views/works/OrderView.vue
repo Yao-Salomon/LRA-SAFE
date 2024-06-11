@@ -188,6 +188,7 @@ export default{
                     currentDatePrelevement.value="";
                     currentOrigine.value="";
                     currentSituation.value="";
+                    currentDetails.value="";
                 }else{
                    snackbar.value=true
                    snackbarText.value="Cette ligne existe déjà"
@@ -504,6 +505,16 @@ export default{
                             
                         >
                             <v-select
+                                label="Origine"
+                                prepend-inner-icon="mdi-palette-swatch"
+                                :items="selectedConstructionSiteWays"
+                                item-value="abbreviation"
+                                hide-no-data
+                                item-title="externalID"
+                                v-model="currentOrigine"
+                            >
+                            </v-select>
+                            <v-select
                                 label="Situation"
                                 prepend-inner-icon="mdi-palette-swatch"
                                 :items="situations"
@@ -519,16 +530,7 @@ export default{
                                 v-model="currentDetails"
                             >
                             </v-text-field>
-                            <v-select
-                                label="Origine"
-                                prepend-inner-icon="mdi-palette-swatch"
-                                :items="selectedConstructionSiteWays"
-                                item-value="abbreviation"
-                                hide-no-data
-                                item-title="externalID"
-                                v-model="currentOrigine"
-                            >
-                            </v-select>
+                           
                             <v-btn
                                 icon="mdi-folder-plus"
                                 :disabled="!addBtnActive"

@@ -4,6 +4,7 @@ import { useSessionStore } from "../stores/session";
 import { useRouter } from 'vue-router'
 import { useUserSTore } from "@/stores/user";
 import { useKeyStore } from "@/stores/userDetails";
+import { useNotifStore } from "@/stores/notifications";
 const DEBUG=import.meta.env.VITE_DEBUG
 const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
 const PROD_URL=import.meta.env.VITE_PROD_URL
@@ -53,6 +54,7 @@ export async function checkSessionValidity(username:string){
           const sessionStore=useSessionStore();
           const userStore=useUserSTore();
           const credentialsStore=useKeyStore();
+          const notifcationsStore=useNotifStore();
 
           if(response.data.status==200){
             sessionStore.setSession(true)
@@ -63,6 +65,7 @@ export async function checkSessionValidity(username:string){
             sessionStore.setSession(false)
             userStore.reset()
             credentialsStore.reset()
+            notifcationsStore.reset()
             router.push('/login')
           }
           
