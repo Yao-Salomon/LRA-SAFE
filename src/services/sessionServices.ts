@@ -1,13 +1,11 @@
 import axios from "axios";
 import QueryString from "qs";
-import { useSessionStore } from "../stores/session";
-import { useRouter } from 'vue-router'
-import { useUserSTore } from "@/stores/user";
-import { useKeyStore } from "@/stores/userDetails";
-import { useNotifStore } from "@/stores/notifications";
-const DEBUG=import.meta.env.VITE_DEBUG
-const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
-const PROD_URL=import.meta.env.VITE_PROD_URL
+import main from "@/constants/main";
+
+
+const DEBUG=main.debug
+const DEBUG_URL=main.urlDev
+const PROD_URL=main.urlProd
 const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_SESSION='/rest/services/lab_APIServices/checkTokenValidity'
 
@@ -32,9 +30,7 @@ let config = {
 
 export async function checkSessionValidity(username:string){
 
-    const router=useRouter()
-
-    axios.request(config)
+    const response=axios.request(config)
     .then((response) => {
         let token=response.data.access_token
         let expiring_date=JSON.stringify(response.data.expires_in)
@@ -48,34 +44,18 @@ export async function checkSessionValidity(username:string){
           } 
         };
         
-        axios.request(configSession)
-        .then((response) => {
-          
-          const sessionStore=useSessionStore();
-          const userStore=useUserSTore();
-          const credentialsStore=useKeyStore();
-          const notifcationsStore=useNotifStore();
-
-          if(response.data.status==200){
-            sessionStore.setSession(true)
-            console.log("case session Valid")
-            router.push('/')
-          }else{
-            console.log("case session Expired")
-            sessionStore.setSession(false)
-            userStore.reset()
-            credentialsStore.reset()
-            notifcationsStore.reset()
-            router.push('/login')
-          }
-          
+       const responses =axios.request(configSession)
+        .then((object) => {
+          return object.data
         })
         .catch((error) => {
           console.log(error);
         });
-
+        return responses;
     })
     .catch((error) => {
-        router.push('/404')
+      //
     });
+
+    return response;
 }

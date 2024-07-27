@@ -72,12 +72,25 @@ export default {
       
       onMounted(async ()=>{
         pageLoading.value=true;
-        checkSessionValidity(username.value)
-        console.log("The username :"+username.value)
-        console.log("The credentials",credentials.value)
-
         const notificationsResponse=await fetchNotifications(username.value);
-        notifcationsStore.setContent(notificationsResponse)
+        notifcationsStore.setContent(notificationsResponse);
+
+        const session=await checkSessionValidity(username.value);
+        if(session==undefined){
+          router.push('/404')
+        }
+        if(session.status==200){
+          sessionStore.setSession(true)
+          console.log("case session Valid")
+          router.push('/')
+        }else{
+          sessionStore.setSession(false)
+          userStore.reset()
+          credentialsStore.reset()
+          notifcationsStore.reset()
+          router.push('/login')
+        }
+
         pageLoading.value=false;
         console.log("The notifications are : ",notifications.value)
       })

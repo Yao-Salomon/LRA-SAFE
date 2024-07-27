@@ -71,7 +71,7 @@ import { useRoute } from 'vue-router';
           type="card-avatar, actions,article"
         ></v-skeleton-loader>
     </v-sheet>
-    <v-sheet class=" pa-2 rounded-lg mb-5" width="80%" height="90%" v-else>
+    <v-sheet class=" pa-2 rounded-lg mb-5" width="80%" height="100%" v-else>
         <p class="text-center text-h6 mb-2 font-weight-bold d-flex flex-column justify-center align-center">
             <v-icon icon="mdi-message-badge" color="blue"/>
         </p>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { DoughnutChart,LineChart, BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart} from 'vue-chart-3';
+    import { BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart} from 'vue-chart-3';
     import { Chart, registerables } from "chart.js";
     import  { computed, defineComponent, onMounted, ref } from 'vue';
     import { fetchCommands } from '@/services/commandServices';
@@ -9,8 +9,8 @@
 
     Chart.register(...registerables);
     export default defineComponent({
-        name:'Dashboard',
-        components:{DoughnutChart,LineChart,BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart},
+        name:'DashboardComponent',
+        components:{BarChart},
         setup(){
             const userStore=useUserSTore()
             const username=computed(()=>userStore.getUsername)
@@ -63,7 +63,6 @@
             }
             onMounted(async ()=>{
                 const commandResponse=await fetchCommands(username.value)
-                console.log("The command list",commandResponse);
                 commandResponse.sort((a:any,b:any)=>{
                     let dateA=new Date(a.createdDate);
                     let dateB=new Date(b.createdDate);
@@ -84,15 +83,19 @@
                 let plannedCommands=commandResponse.filter((el:any)=>{
                     return el.status=="PLANNED" ||el.status=="PLANNING_APPROVED" || el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
                 })
-                let planning_approved =new Array(commandResponse).filter((el:any)=>{
-                    return el.status=="PLANNING_APPROVED" ||el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
-                })
+                /**
+                    let planning_approved =new Array(commandResponse).filter((el:any)=>{
+                        return el.status=="PLANNING_APPROVED" ||el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                    })
+                */
                 let treatedCommands =new Array(commandResponse).filter((el:any)=>{
                     return el.status=="TREATED" || el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
                 })
-                let validatedCommands =new Array(commandResponse).filter((el:any)=>{
-                    return el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
-                })
+                /**
+                    let validatedCommands =new Array(commandResponse).filter((el:any)=>{
+                        return el.status=="VALIDATED" || el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
+                    })
+                */
                 let deliveredCommands =new Array(commandResponse).filter((el:any)=>{
                     return el.status=="DELIVERED" || el.status=="CONFIRMED" || el.status=="BLOCKED";
                 })
@@ -143,7 +146,7 @@
                         <p class="text-body-1 ">Mes commandes</p>
                     </v-sheet>
                     <div class="d-flex flex-wrap justify-start">
-                        <v-card v-for="(command,index) in commandsFiltered" class="ma-1" width="200px" height="150px" variant="tonal" color="green-darken-1">
+                        <v-card :key="index" v-for="(command,index) in commandsFiltered" class="ma-1" width="200px" height="150px" variant="tonal" color="green-darken-1">
                                 <v-card-item>
                                     <p class="">
                                         <v-icon icon="mdi-invoice-list"/>
@@ -187,10 +190,10 @@
             ></v-skeleton-loader>
         </v-col>
         <v-col>
-            <v-sheet :class="{shake:true}" class="bg-blue pa-2 rounded-lg mt-1" elevation="2">
+            <v-sheet :class="{shake:true}" class="bg-blue pa-2 rounded-lg mt-3" elevation="2">
                 <p>Récap des commandes</p>
             </v-sheet>
-            <BarChart title="love" :chartData="testData"/>
+            <BarChart title="Récap des commandes" :chartData="testData"/>
             <!--
             <LineChart :chartData="testData"/>
             <DoughnutChart :chartData="testData" />

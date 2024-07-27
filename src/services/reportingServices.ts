@@ -1,10 +1,11 @@
 import axios, { type ResponseType } from "axios";
 import QueryString from "qs";
-import { useSessionStore } from "../stores/session";
-import { useUserSTore } from "../stores/user";
-const DEBUG=import.meta.env.VITE_DEBUG
-const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
-const PROD_URL=import.meta.env.VITE_PROD_URL
+import main from "@/constants/main";
+
+
+const DEBUG=main.debug
+const DEBUG_URL=main.urlDev
+const PROD_URL=main.urlProd
 const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_REPORTING='/rest/services/lab_APIServices/getReportId'
 const TRAIL_URL_TDR_REPORTING='/rest/services/lab_APIServices/getTDRReportId'
@@ -12,12 +13,12 @@ const TRAIL_URL_RUN_REPORTING='/rest/reports/run/'
 const TRAIL_URL_FILE_REF='/rest/files'
 
 
-let data = QueryString.stringify({
+const data = QueryString.stringify({
   'grant_type': 'client_credentials' 
 });
 
 
-let config = {
+const config = {
   method: 'post',
   maxBodyLength: Infinity,
   url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
@@ -34,12 +35,12 @@ export async function getReportId(username:string){
     
    const response=await  axios.request(config)
     .then((response) => {
-        let token=response.data.access_token
-        let dataParameters = {
+        const token=response.data.access_token
+        const dataParameters = {
             "username": username,
           };
           
-        let configParameter = {
+        const configParameter = {
         method: 'post',
         maxBodyLength: Infinity,
         url: DEBUG?DEBUG_URL+TRAIL_URL_REPORTING:PROD_URL+TRAIL_URL_REPORTING,
@@ -50,7 +51,7 @@ export async function getReportId(username:string){
         };
         
         const responses=axios.request(configParameter)
-        .then((object) => {
+        .then(() => {
             const responses=axios.request(configParameter)
             .then((object) => {
                 
@@ -67,7 +68,7 @@ export async function getReportId(username:string){
         });
         return responses;
     })
-    .catch((error) => {
+    .catch(() => {
 
     });
 
@@ -79,14 +80,14 @@ export async function runReport(reportId:string,parameters:any){
     
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataParameters = {
+       const token=response.data.access_token
+       const dataParameters = {
            "parameters": parameters,
          };
        //ResponseType to arraybuffer. 
-       let responseType:ResponseType="arraybuffer"
+       const responseType:ResponseType="arraybuffer"
 
-       let configParameter = {
+       const configParameter = {
         method: 'post',
         maxBodyLength: Infinity,
         url: DEBUG?DEBUG_URL+TRAIL_URL_RUN_REPORTING+reportId:PROD_URL+TRAIL_URL_RUN_REPORTING+reportId,
@@ -98,7 +99,7 @@ export async function runReport(reportId:string,parameters:any){
        };
        
        const responses=axios.request(configParameter)
-       .then((object) => {
+       .then(() => {
            const responses=axios.request(configParameter)
            .then((object) => {
                
@@ -115,7 +116,7 @@ export async function runReport(reportId:string,parameters:any){
        });
        return responses;
    })
-   .catch((error) => {
+   .catch(() => {
 
    });
 
@@ -127,12 +128,12 @@ export async function getTDRReportId(username:string){
     
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataParameters = {
+       const token=response.data.access_token
+       const dataParameters = {
            "username": username,
          };
          
-       let configParameter = {
+       const configParameter = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_TDR_REPORTING:PROD_URL+TRAIL_URL_TDR_REPORTING,
@@ -143,7 +144,7 @@ export async function getTDRReportId(username:string){
        };
        
        const responses=axios.request(configParameter)
-       .then((object) => {
+       .then(() => {
            const responses=axios.request(configParameter)
            .then((object) => {
                
@@ -160,7 +161,7 @@ export async function getTDRReportId(username:string){
        });
        return responses;
    })
-   .catch((error) => {
+   .catch(() => {
 
    });
 
@@ -172,14 +173,14 @@ export async function runTDRReport(reportId:string,parameters:any){
     
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataParameters = {
+       const token=response.data.access_token
+       const dataParameters = {
            "parameters": parameters,
          };
        //ResponseType to arraybuffer. 
-       let responseType:ResponseType="arraybuffer"
+       const responseType:ResponseType="arraybuffer"
 
-       let configParameter = {
+       const configParameter = {
         method: 'post',
         maxBodyLength: Infinity,
         url: DEBUG?DEBUG_URL+TRAIL_URL_RUN_REPORTING+reportId:PROD_URL+TRAIL_URL_RUN_REPORTING+reportId,
@@ -191,7 +192,7 @@ export async function runTDRReport(reportId:string,parameters:any){
        };
        
        const responses=axios.request(configParameter)
-       .then((object) => {
+       .then(() => {
            const responses=axios.request(configParameter)
            .then((object) => {
                
@@ -208,7 +209,7 @@ export async function runTDRReport(reportId:string,parameters:any){
        });
        return responses;
    })
-   .catch((error) => {
+   .catch(() => {
 
    });
 
@@ -220,10 +221,10 @@ export async function getFileByRef(fileRef:any){
     
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
+       const token=response.data.access_token
        //ResponseType to arraybuffer. 
-       let responseType:ResponseType="arraybuffer"
-       let configParameter = {
+       const responseType:ResponseType="arraybuffer"
+       const configParameter = {
         method: 'get',
         maxBodyLength: Infinity,
         url: (DEBUG?DEBUG_URL+TRAIL_URL_FILE_REF:PROD_URL+TRAIL_URL_FILE_REF)+'?fileRef='+fileRef,
@@ -234,7 +235,7 @@ export async function getFileByRef(fileRef:any){
        };
        
        const responses=axios.request(configParameter)
-       .then((object) => {
+       .then(() => {
            const responses=axios.request(configParameter)
            .then((object) => {
                
@@ -251,7 +252,7 @@ export async function getFileByRef(fileRef:any){
        });
        return responses;
    })
-   .catch((error) => {
+   .catch(() => {
 
    });
 

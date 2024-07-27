@@ -12,7 +12,7 @@
         router.push("dashboard")
       }
       function goToReports(){
-        router.push("dashboard")
+        router.push("reports")
       }
       return{
         goToOrder,

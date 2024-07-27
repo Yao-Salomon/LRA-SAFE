@@ -2,24 +2,24 @@
 
 
 export function filterArrayUnique(container:any){
-    let ids=container.map((e:any)=>{
+    const ids=container.map((e:any)=>{
         return e.id
     })
 
-    let sortedIds=[...new Set(ids)]
+    const sortedIds=[...new Set(ids)]
 
     let iterator=1;
-    let uniques=[]
+    const uniques=[]
 
-    for(let id in sortedIds){
-        for(let index in container){
+    for(const id in sortedIds){
+        for(const index in container){
             if(container[index].id==sortedIds[id]){
                 uniques.push(container[index])
             }
             
         }
         while(uniques.length>iterator){
-            let popResult=uniques.pop()
+            const popResult=uniques.pop()
         }
         iterator=iterator+1
     }
@@ -35,7 +35,7 @@ export function getMaterialAbbrById(container:any,id:any,date:any,origin:any,sit
     const dateParsed=new Date(date);
     console.log("The date used",dateParsed)
     if(Object.keys(container).length>0 && id.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.id==id;
         })
         
@@ -49,7 +49,7 @@ export function getMaterialAbbrById(container:any,id:any,date:any,origin:any,sit
 export function getExternalIDById(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.id==id;
         })
         
@@ -62,7 +62,7 @@ export function getExternalIDById(container:any,id:any){
 export function getAbbrById(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any)=>{
             return element.id==id;
         })
         
@@ -75,7 +75,7 @@ export function getAbbrById(container:any,id:any){
 export function getConstructionSiteById(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any)=>{
             return element.id==id;
         })
         
@@ -89,7 +89,7 @@ export function getConstructionSiteById(container:any,id:any){
 export function getWaysById(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        let constructionSite=container.filter((element:any,index:number)=>{
+        const constructionSite=container.filter((element:any,index:number)=>{
             return element.id==id;
         })
         
@@ -103,7 +103,7 @@ export function getWaysById(container:any,id:any){
 export function getMaterialByCode(container:any,code:any){
     console.log("The probable problem source is: entered")
     if(Object.keys(container).length>0 && code.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.materialCode==code;
         })
         return material[0].materialExternalID
@@ -115,7 +115,7 @@ export function getMaterialByCode(container:any,code:any){
 export function getMaterialObjectByCode(container:any,code:any){
     console.log("The probable problem source is: entered")
     if(Object.keys(container).length>0 && code.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.materialCode==code;
         })
         return material[0]
@@ -127,7 +127,7 @@ export function getMaterialObjectByCode(container:any,code:any){
 export function getMaterialIDByCode(container:any,code:any){
     
     if(Object.keys(container).length>0 && code.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.materialCode==code;
         })
         return material[0].materialId
@@ -140,7 +140,7 @@ export function getMaterialIDByCode(container:any,code:any){
 export function getTrialByID(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        let trials=container.filter((element:any,index:number)=>{
+        const trials=container.filter((element:any,index:number)=>{
             return element.id==id;
         })
         console.log("The trials oooooo",trials[0])
@@ -155,7 +155,7 @@ export function getTrialsByCode(container:any,code:any){
    
     if(Object.keys(container).length>0 && code.length>0){
 
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.materialCode==code;
         })
         if(material[0]==undefined){
@@ -173,7 +173,7 @@ export function getTrialsByCode(container:any,code:any){
 export function getExternalIDByAbbr(container:any,abbr:any){
     
     if(Object.keys(container).length>0 && abbr.length>0){
-        let material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any,index:number)=>{
             return element.abbreviation==abbr;
         })
         
@@ -188,7 +188,7 @@ export function checkValidCode(container:any,code:any){
     console.log("the container in check Valid Code-->",container);
     console.log("the code",code);
 
-    let material=container.filter((element:any,index:number)=>{
+    const material=container.filter((element:any,index:number)=>{
         return element.materialCode==code
     })
 

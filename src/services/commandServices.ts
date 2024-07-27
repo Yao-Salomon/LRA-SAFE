@@ -2,9 +2,12 @@ import axios from "axios";
 import QueryString from "qs";
 import { useSessionStore } from "../stores/session";
 import { useUserSTore } from "../stores/user";
-const DEBUG=import.meta.env.VITE_DEBUG
-const DEBUG_URL=import.meta.env.VITE_REST_DEBUG_URL
-const PROD_URL=import.meta.env.VITE_PROD_URL
+import main from "@/constants/main";
+
+
+const DEBUG=main.debug
+const DEBUG_URL=main.urlDev
+const PROD_URL=main.urlProd
 const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_DRAFTED='/rest/services/lab_APIServices/fetchDraftedCommand'
 const TRAIL_URL_COMMAND='/rest/services/lab_APIServices/fetchCommands'

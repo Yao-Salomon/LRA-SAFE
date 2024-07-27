@@ -719,7 +719,7 @@ export default{
                                                     :color="index%2==1?'blue':'green'"
                                                     v-model="selectedTrials"
                                                     :value="trial.id"
-                                                    :label="trial.externalID+' ('+trial.unitPrice+') F CFA'"
+                                                    :label="trial.externalID"
                                                 />
                                             </v-card-text>
                                             <v-card-actions>
@@ -769,8 +769,8 @@ export default{
                                     <v-divider></v-divider>
                                     <v-card-text>
                                         <p>
-                                            <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
-                                            <span>F CFA</span>
+                                            <span class="font-weight-bold">Traitement : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).preTreatmentDelay+getTrialByIDUI(trialsForMaterialByCode,item).treatmentDelay+getTrialByIDUI(trialsForMaterialByCode,item).postTreatmentDelay }}
+                                            <span>Jours</span>
                                         </p>
                                     </v-card-text>
                                 </v-card>
@@ -783,8 +783,8 @@ export default{
                                     <v-divider></v-divider>
                                     <v-card-text>
                                         <p>
-                                            <span class="font-weight-bold">Prix : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).unitPrice }}
-                                            <span>F CFA</span>
+                                            <span class="font-weight-bold">Traitement : </span>{{ getTrialByIDUI(trialsForMaterialByCode,item).preTreatmentDelay+getTrialByIDUI(trialsForMaterialByCode,item).treatmentDelay+getTrialByIDUI(trialsForMaterialByCode,item).postTreatmentDelay }}
+                                            <span>Jours</span>
                                         </p>
                                     </v-card-text>
                                 </v-card>

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { ref,computed,onMounted } from 'vue';
-  import TheWelcome from '../components/TheWelcome.vue'
+  import { computed,onMounted } from 'vue';
   import Timeline from '../components/TimeLine.vue'
   import {checkSessionValidity} from '@/services/sessionServices';
   import { useUserSTore } from '@/stores/user';

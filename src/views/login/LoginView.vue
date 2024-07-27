@@ -103,13 +103,23 @@ export default{
         width="100%"
         
     >
-    <v-card class="mr-1 bg-yellow-accent-1 my-2" elevation="5">
+    <v-card class="mr-1 bg-blue-accent-1 my-2" elevation="5">
         <v-img
-        width="130"
-        height="380"
-        cover
-        src="./src/assets/road2.jpg"
-        ></v-img>
+            width="130"
+            height="380"
+            cover
+            lazy-src="./src/assets/road2.jpg"
+            src="./src/assets/road2.jpg"
+        >
+            <template v-slot:placeholder>
+                <div class="d-flex align-center justify-center fill-height">
+                    <v-progress-circular
+                    color="grey-lighten-4"
+                    indeterminate
+                    ></v-progress-circular>
+                </div>
+            </template>
+        </v-img>
     </v-card>
 
     <v-card class="mx-auto w-75 px-4 py-3" elevation="1">

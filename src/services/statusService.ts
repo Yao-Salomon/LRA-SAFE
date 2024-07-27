@@ -1,7 +1,5 @@
 import axios from "axios";
 import QueryString from "qs";
-import { useSessionStore } from "../stores/session";
-import { useUserSTore } from "../stores/user";
 import main from "@/constants/main";
 
 
@@ -9,16 +7,17 @@ const DEBUG=main.debug
 const DEBUG_URL=main.urlDev
 const PROD_URL=main.urlProd
 const TRAIL_URL='/oauth2/token'
-const TRAIL_URL_NOTIFICATIONS='/rest/services/lab_APIServices/fetchNotifications'
+const TRAIL_URL_CL='/rest/services/lab_APIServices/fetchCommandLines'
 const TRAIL_URL_NOTIFICATIONS_TREATMENT='/rest/services/lab_APIServices/markAsReadOrArchived'
+const TRAIL_URL_INDICATORS='/rest/services/lab_APIServices/fetchIndicators'
 
 
-let data = QueryString.stringify({
+const data = QueryString.stringify({
   'grant_type': 'client_credentials' 
 });
 
 
-let config = {
+const config = {
   method: 'post',
   maxBodyLength: Infinity,
   url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
@@ -31,19 +30,19 @@ let config = {
 
 
 
-export async function fetchNotifications(username:string){
+export async function fetchCls(username:string){
     
    const response=await  axios.request(config)
     .then((response) => {
-        let token=response.data.access_token
-        let dataParameters = {
+        const token=response.data.access_token
+        const dataParameters = {
             "username": username,
           };
           
-        let configParameter = {
+        const configParameter = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: DEBUG?DEBUG_URL+TRAIL_URL_NOTIFICATIONS:PROD_URL+TRAIL_URL_NOTIFICATIONS,
+        url: DEBUG?DEBUG_URL+TRAIL_URL_CL:PROD_URL+TRAIL_URL_CL,
         headers: { 
             'Authorization': `Bearer ${token}`
         },
@@ -60,7 +59,7 @@ export async function fetchNotifications(username:string){
         });
         return responses;
     })
-    .catch((error) => {
+    .catch(() => {
 
     });
 
@@ -72,13 +71,13 @@ export async function markAsReadOrArchived(notificationID:any,markAsRead:any){
     
     const response=await  axios.request(config)
      .then((response) => {
-         let token=response.data.access_token
-         let dataParameters = {
+         const token=response.data.access_token
+         const dataParameters = {
              "notificationID": notificationID,
              "markAsRead":markAsRead
            };
            
-         let configParameter = {
+         const configParameter = {
          method: 'post',
          maxBodyLength: Infinity,
          url: DEBUG?DEBUG_URL+TRAIL_URL_NOTIFICATIONS_TREATMENT:PROD_URL+TRAIL_URL_NOTIFICATIONS_TREATMENT,
@@ -98,12 +97,49 @@ export async function markAsReadOrArchived(notificationID:any,markAsRead:any){
          });
          return responses;
      })
-     .catch((error) => {
+     .catch(() => {
  
      });
  
      return response;
  
  }
+
+ export async function fetchIndicators(username:string){
+    
+  const response=await  axios.request(config)
+   .then((response) => {
+       const token=response.data.access_token
+       const dataParameters = {
+           "username": username,
+         };
+         
+       const configParameter = {
+       method: 'post',
+       maxBodyLength: Infinity,
+       url: DEBUG?DEBUG_URL+TRAIL_URL_INDICATORS:PROD_URL+TRAIL_URL_INDICATORS,
+       headers: { 
+           'Authorization': `Bearer ${token}`
+       },
+       data : dataParameters
+       };
+       
+       const responses=axios.request(configParameter)
+       .then((object) => {
+       
+         return object.data;  
+       })
+       .catch((error) => {
+         console.log(error);
+       });
+       return responses;
+   })
+   .catch(() => {
+
+   });
+
+   return response;
+
+}
 
 
