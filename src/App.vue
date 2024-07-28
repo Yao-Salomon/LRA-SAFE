@@ -1,5 +1,5 @@
 <script lang="ts">
-import { RouterLink, RouterView,useRouter,useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { ref,computed,onMounted } from 'vue';
 import {checkSessionValidity} from '@/services/sessionServices';
 import { useTokenStore } from '@/stores/token';
@@ -9,9 +9,6 @@ import {useSessionStore} from '@/stores/session'
 import {logUserOut} from '@/services/loginServices'
 import {useKeyStore} from '@/stores/userDetails';
 import { fetchNotifications } from './services/notificationsServices';
-import { onUpdated } from 'vue';
-import { onBeforeUpdate } from 'vue';
-
 
 export default {
   created () {
@@ -19,7 +16,6 @@ export default {
     setup() {
 
       const drawer =ref(true);
-      const location=useRoute()
       const router=useRouter();
       const userStore=useUserSTore();
       const credentialsStore=useKeyStore();
@@ -33,12 +29,12 @@ export default {
       const username=computed(()=>userStore.getUsername)
       const session=computed(()=>sessionStore.getSession)
       const credentials=computed(()=>credentialsStore.getUserInfos)
-     const notifications=computed(()=>notifcationsStore.getContent)
+      const notifications:any=computed(()=>notifcationsStore.getContent)
      
 
       const avatar=computed(()=>{
         let calculatedAvatar='';
-        if(credentials!=null){
+        if(credentials.value!=null){
           if(Object.keys(credentials).length>0){
             if(credentials.value.firstName!=undefined){
               calculatedAvatar+=credentials.value.firstName.charAt(0);
@@ -69,6 +65,20 @@ export default {
         }
       }
       
+      function moveTowardNotifications(){
+        if(session.value){
+          router.push({ name: 'notifications', params: { notifications: notifications } })
+        }else{
+          router.push("/login")
+        }
+      }
+      function moveTo(route:string){
+        if(session.value){
+          router.push(route)
+        }else{
+          router.push("/login")
+        }
+      }
       
       onMounted(async ()=>{
         pageLoading.value=true;
@@ -108,7 +118,8 @@ export default {
         notifications,
         pageLoading,
         router,
-        
+        moveTowardNotifications,
+        moveTo
       }
     },
   }
@@ -145,21 +156,21 @@ export default {
           <v-list-item 
             key="order"
             prepend-icon="mdi-seed-plus-outline" 
-            to="/order" 
+            @click="moveTo('/order')"
             value="order">
            {{ $t('navigation.order')}}
           </v-list-item>
           <v-list-item 
             key="dashboard"
             prepend-icon="mdi-view-dashboard" 
-            to="/dashboard" 
+            @click="moveTo('/dashboard')"
             value="dashboard">
            Tableau de bord
           </v-list-item>
           <v-list-item 
             key="reports"
             prepend-icon="mdi-chart-arc" 
-            to="/reports" 
+            @click="moveTo('/reports')"
             value="reports">
            Rapports & états
           </v-list-item>
@@ -173,13 +184,13 @@ export default {
         <v-btn
           variant="text"
           class=""
-          to="/"
+          @click="moveTo('/')"
           append-icon="mdi-road-variant"
         >
           Labpro
         </v-btn>
       </v-app-bar-title>
-      <v-btn icon v-if="notifications.length>0" @click="router.push({ name: 'notifications', params: { notifications: notifications } })" >
+      <v-btn icon v-if="notifications.length>0" @click="moveTowardNotifications()" >
         <v-badge color="deep-orange" :content="notifications.length">
           <v-icon color="deep-purple-lighten-5">mdi-bell</v-icon>
         </v-badge> 
@@ -196,7 +207,8 @@ export default {
                 :key="1"
                 :value="1"
                 prepend-icon="mdi-account-badge"
-                to="/account"
+                @click="moveTo('/account')"
+
               >
                 <v-list-item-title>{{ $t('navigation.account') }}</v-list-item-title>
               </v-list-item>
@@ -206,9 +218,20 @@ export default {
                 :value="2"
                 prepend-icon="mdi-rss"
                 :link="true"
-                to="/feedback"
+                @click="moveTo('/feedback')"
+
               >
                 <v-list-item-title >{{ $t('navigation.feedback') }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                :key="2"
+                :value="2"
+                prepend-icon="mdi-lock"
+                :link="true"
+                @click="moveTo('/password')"
+
+              >
+                <v-list-item-title >{{ $t('navigation.password') }}</v-list-item-title>
               </v-list-item>
           </v-list>
         </v-menu>

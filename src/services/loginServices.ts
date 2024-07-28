@@ -1,8 +1,5 @@
 import axios from "axios";
 import QueryString from "qs";
-import { useSessionStore } from "../stores/session";
-import { useUserSTore } from "../stores/user";
-import { useRouter } from 'vue-router'
 import main from "@/constants/main";
 
 
@@ -14,12 +11,12 @@ const TRAIL_URL_LOGIN='/rest/services/lab_APIServices/logUserIn'
 const TRAIL_URL_OUT='/rest/services/lab_APIServices/logUserOut'
 
 
-let data = QueryString.stringify({
+const data = QueryString.stringify({
   'grant_type': 'client_credentials' 
 });
 
 
-let config = {
+const config = {
   method: 'post',
   maxBodyLength: Infinity,
   url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
@@ -36,13 +33,13 @@ export async function logUserIn(username:string,password:string){
     
    const response=await  axios.request(config)
     .then((response) => {
-        let token=response.data.access_token
-        let dataLogin = {
+        const token=response.data.access_token
+        const dataLogin = {
             "username": username,
             "password": password
           };
           
-        let configLogin = {
+        const configLogin = {
         method: 'post',
         maxBodyLength: Infinity,
         url: DEBUG?DEBUG_URL+TRAIL_URL_LOGIN:PROD_URL+TRAIL_URL_LOGIN,
@@ -54,11 +51,6 @@ export async function logUserIn(username:string,password:string){
         
         const loginResponse=axios.request(configLogin)
         .then((object) => {
-          const sessionStore=useSessionStore();
-          const userStore=useUserSTore();
-          const serviceResponse=object.data.response
-          const user=object.data.user
-        
           return object.data;  
         })
         .catch((error) => {
@@ -66,7 +58,7 @@ export async function logUserIn(username:string,password:string){
         });
         return loginResponse;
     })
-    .catch((error) => {
+    .catch(() => {
       
     });
 
@@ -78,12 +70,12 @@ export async function logUserOut(username:string){
     
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataLogout = {
+       const token=response.data.access_token
+       const dataLogout = {
            "username": username,
          };
          
-       let configLogin = {
+       const configLogin = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_OUT:PROD_URL+TRAIL_URL_OUT,
@@ -95,11 +87,6 @@ export async function logUserOut(username:string){
        
        const loginResponse=axios.request(configLogin)
        .then((object) => {
-         const sessionStore=useSessionStore();
-         const userStore=useUserSTore();
-         const serviceResponse=object.data.response
-         const user=object.data.user
-       
          return object.data;  
        })
        .catch((error) => {
@@ -107,7 +94,47 @@ export async function logUserOut(username:string){
        });
        return loginResponse;
    })
-   .catch((error) => {
+   .catch(() => {
+     
+   });
+
+   return response;
+
+}
+
+export async function updateUser(username:string,firstName:string,lastName:string,number:string,email:string){
+    
+  const response=await  axios.request(config)
+   .then((response) => {
+       const token=response.data.access_token
+       const dataLoad = {
+           "username": username,
+           "firstName":firstName,
+           "lastName":lastName,
+           "number":number,
+           "email":email
+         };
+         
+       const configLogin = {
+       method: 'post',
+       maxBodyLength: Infinity,
+       url: DEBUG?DEBUG_URL+TRAIL_URL_OUT:PROD_URL+TRAIL_URL_OUT,
+       headers: { 
+           'Authorization': `Bearer ${token}`
+       },
+       data : dataLoad
+       };
+       
+       const loginResponse=axios.request(configLogin)
+       .then((object) => {
+         return object.data;  
+       })
+       .catch((error) => {
+         console.log(error);
+       });
+       return loginResponse;
+   })
+   .catch(() => {
      
    });
 

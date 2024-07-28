@@ -27,7 +27,8 @@ i18next
             feedback:"Make a complaint",
             order:"New order",
             next:"NEXT",
-            previous:"PREVIOUS"
+            previous:"PREVIOUS",
+            password:"Password"
           },
           UI:{
             commandStepperFirst:"General Informations",
@@ -56,7 +57,8 @@ i18next
                 feedback:"Emettre une plainte",
                 order:"Nouvelle commande",
                 next:"NEXT",
-                previous:"PREVIOUS"
+                previous:"PREVIOUS",
+                password:"Mot de passe"
             },
             UI:{
               commandStepperFirst:"General Informations",

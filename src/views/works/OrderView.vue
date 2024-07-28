@@ -7,16 +7,14 @@
 
     import { onMounted } from 'vue';
     import { useUserSTore } from '@/stores/user';
-    import { usePagesStore } from '@/stores/pages';
-    import { useLink, useRoute,useRouter } from 'vue-router';
-    import { getReportId, getTDRReportId, runReport, runTDRReport } from '@/services/reportingServices';
-    import router from '@/router';
+    import { useRoute,useRouter } from 'vue-router';
+    import {  getTDRReportId, runTDRReport } from '@/services/reportingServices';
 
 export default{
 
     setup(){
         const step=ref(1)
-        const {i18next,t}=useTranslation()
+        useTranslation()
         let mtlsMappedMaterial:any=[]
         const pageLoading=ref(true)
         const reportLoading=ref(false)
@@ -439,7 +437,7 @@ export default{
                             </div>
                             
                             <v-radio-group inline v-model="selectedConstructionSite" class="d-flex justify-center align-center" elevation="3" style="min-height:235px;overflow-y: scroll;">
-                                <div v-for="item in constructionSites" class="d-flex  ma-1 bg-green pa-1 rounded-xl">
+                                <div :key="index" v-for="item,index in constructionSites" class="d-flex  ma-1 bg-green pa-1 rounded-xl">
                                     <v-card class="bg-green h-100 border py-3 rounded-s-xl d-flex justify-center align-center" rounded="0" >
                                         <v-radio :value="item.id"></v-radio>
                                     </v-card>
@@ -552,6 +550,7 @@ export default{
                                         <v-expansion-panel 
                                             elevation="1"
                                             class="my-1"
+                                            :key="index"
                                             v-for="(item,index) in selectedMaterialCodes"
                                         >
                                             <v-expansion-panel-title>
@@ -633,6 +632,7 @@ export default{
                     >
                         <v-expansion-panel 
                             elevation="1"
+                            :key="index"
                             class="my-1"
                             v-for="(item,index) in selectedMaterialCodes"
                             :value="item.materialCode"
@@ -716,6 +716,7 @@ export default{
                                             <v-card-text>
                                                 <v-checkbox 
                                                     v-for="(trial,index) in trialsForMaterialByCode"
+                                                    :key="index"
                                                     :color="index%2==1?'blue':'green'"
                                                     v-model="selectedTrials"
                                                     :value="trial.id"
@@ -759,7 +760,7 @@ export default{
                                     <span class="text-body-1">La liste des essais est vide.</span>
                                 </v-chip>
                             </div>
-                           <div class="ma-1" v-for="(item,index) in trialsForOpenedMaterialPanel.trials" v-else>
+                           <div class="ma-1" :key="index" v-for="(item,index) in trialsForOpenedMaterialPanel.trials" v-else>
                                 <v-card v-if="index%2==1" variant="tonal" color="green" width="200px" height="120px">
                                     <v-card-item>
                                         <p>
@@ -807,7 +808,7 @@ export default{
                     <v-chip class="text-body-1" prepend-icon="mdi-cart" variant="tonal" color="blue">Finalisation de la commande</v-chip>
                 </div>
                 <div class="d-flex flex-row" style="overflow-y: scroll">
-                    <div class=" ma-2 " v-for="item in finalMaterialWithTrials">
+                    <div :key="index" class=" ma-2 " v-for="item,index in finalMaterialWithTrials">
                         <v-card height="120px">
                             <v-card-item class="font-weight-bold d-flex justify-content-center align-items-center">
                                 <v-alert variant="outlined" color="green">

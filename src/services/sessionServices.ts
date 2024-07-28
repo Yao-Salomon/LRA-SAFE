@@ -10,12 +10,12 @@ const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_SESSION='/rest/services/lab_APIServices/checkTokenValidity'
 
 
-let data = QueryString.stringify({
+const data = QueryString.stringify({
   'grant_type': 'client_credentials' 
 });
 
 
-let config = {
+const config = {
   method: 'post',
   maxBodyLength: Infinity,
   url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
@@ -32,10 +32,10 @@ export async function checkSessionValidity(username:string){
 
     const response=axios.request(config)
     .then((response) => {
-        let token=response.data.access_token
-        let expiring_date=JSON.stringify(response.data.expires_in)
+        const token=response.data.access_token
+        const expiring_date=JSON.stringify(response.data.expires_in)
         
-        let configSession = {
+        const configSession = {
           method: 'get',
           maxBodyLength: Infinity,
           url: DEBUG?DEBUG_URL+TRAIL_URL_SESSION+`?username=${username}&tokenExpectancy=${expiring_date}`:PROD_URL+TRAIL_URL_SESSION+`?username=${username}&tokenExpectancy=${expiring_date}`,
@@ -53,7 +53,7 @@ export async function checkSessionValidity(username:string){
         });
         return responses;
     })
-    .catch((error) => {
+    .catch(() => {
       //
     });
 

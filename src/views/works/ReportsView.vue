@@ -20,7 +20,7 @@
             const chosenCommand=ref("");
             const pageLoading=ref(true);
             const cls:Ref<[{status:string,pV:{file:{title:string,createdDate:string,file:string}}}]>=ref([{status:"",pV:{file:{title:"",createdDate:" ",file:""}}}]);
-            const indicators=ref([]);
+            const indicators:any=ref([]);
 
             const clsSize=computed(()=>cls.value.length);
             const clsCSize=computed(()=>cls.value.filter((cl)=>cl.status=="CREATED").length)
@@ -50,8 +50,8 @@
             const reportsList=[
                 {name:"pro",content:"Avancement"},
                 {name:"pv",content:"PV"},
-                {name:"rel",content:"Réalisation"},
-                {name:"ind",content:"Indicateurs"}
+                {name:"ind",content:"Indicateurs"},
+                {name:"rel",content:"Réalisation"}
             ]
 
             onMounted(async ()=>{
@@ -82,7 +82,8 @@
                 clsASize,
                 clChartData,
                 clsAList,
-                downloadPv
+                downloadPv,
+                indicators
             }
         }
     }
@@ -178,6 +179,37 @@
                             </v-card-actions>
                         </v-card>
                     </div>
+                </v-col>
+                <v-col v-else-if="chosenReport==reportsList[2].name">
+                    <v-table theme="light">
+                        <thead>
+                            <tr>
+                                <th class="text-left">
+                                    #
+                                </th>
+                                <th class="text-left">
+                                    Titre
+                                </th>
+                                <th class="text-left">
+                                    Valeur
+                                </th>
+                                <th class="text-left">
+                                    Description
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="item,index in indicators"
+                                :key="item.name"
+                            >
+                                <td>{{ index+1 }}</td>
+                                <td>{{ item.title }}</td>
+                                <td>{{ item.value }}</td>
+                                <td>{{ item.description }}</td>
+                            </tr>
+                        </tbody>
+                    </v-table>
                 </v-col>
                 <v-col v-else>
                     
