@@ -8,6 +8,7 @@
     import { DoughnutChart} from 'vue-chart-3';
     import { Chart, registerables } from "chart.js";
     import {downloadFile} from "@/utils/download";
+import { useAuthStore } from '@/stores/auth';
     
     //Component list: LineChart,BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart
     Chart.register(...registerables);
@@ -33,7 +34,9 @@
 
             const commands:any=ref([]);
             const userStore=useUserSTore();
+            const authStore=useAuthStore();
             const username=computed(()=>userStore.getUsername)
+            const auth=computed(()=>authStore.getCredential)
 
             const chartData:any=ref([])
             const clChartData =computed(()=>({
@@ -55,11 +58,11 @@
             ]
 
             onMounted(async ()=>{
+                console.log("************ %s ***********", "Reports View mounted")
                 pageLoading.value=true;
-                cls.value=await fetchCls(username.value);
-                console.log("The value is: ",clsAList.value);
-                commands.value=await fetchCommands(username.value);
-                indicators.value=await fetchIndicators(username.value);
+                cls.value=await fetchCls(username.value,auth.value);
+                commands.value=await fetchCommands(username.value,auth.value);
+                indicators.value=await fetchIndicators(username.value,auth.value);
                 chartData.value=[clsCSize.value,clsPSize.value,clsRSize.value,clsTSize.value,clsASize.value]
                 pageLoading.value=false;
             })

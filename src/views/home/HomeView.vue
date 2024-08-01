@@ -1,34 +1,41 @@
-<script>
+<script lang="ts">
+  import { onMounted } from 'vue';
+  import Timeline from '../../components/TimeLine.vue'
 
-    export default{
-        setup(){
-            const cards=[
-                {
-                    "name":"New commands",
-                    "link":"link",
-                    "icon":"icon",
-                    "satus":false,
-                    "statusContent":"Content"
-                },
-                {
-                    "name":"Commands monitoring",
-                    "name":"link",
-                    "icon":"icon",
-                    "satus":false,
-                    "statusContent":"2"
-                }
-            ]
-            return{
-                cards
-            }
-        }
+
+  export default{
+    setup(){
+
+      onMounted(async ()=>{
+        console.log("************ %s ***********", "HomeView mounted")
+       
+      })
+      return{
+        
+      }
+
+    },
+    components:{
+      Timeline
     }
-
+    
+  }
 </script>
+
 <template>
-    <v-sheet class="d-flex">
-        <v-card v-for="card in cards" class="">
-            
-        </v-card>
-    </v-sheet>
+  <v-sheet
+    class="bg-blue"
+    width="100%"
+    height="100%"
+    style="background-image: url('./src/assets/slide-4.jpg');background-size: cover;"
+  >
+    <Timeline/>
+
+  </v-sheet>
 </template>
+
+<style>
+  .overdrop{
+    background-color: #ffffffa1;
+  }
+</style>

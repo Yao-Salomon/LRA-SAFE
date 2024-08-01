@@ -1,5 +1,4 @@
-
-
+import { Base64 } from "js-base64";
 
 export function filterArrayUnique(container:any){
     const ids=container.map((e:any)=>{
@@ -19,15 +18,11 @@ export function filterArrayUnique(container:any){
             
         }
         while(uniques.length>iterator){
-            const popResult=uniques.pop()
+            uniques.pop()
         }
         iterator=iterator+1
     }
     return uniques
-}
-
-export function filterArrayByTrials(container:any,id:any){
-
 }
 
 export function getMaterialAbbrById(container:any,id:any,date:any,origin:any,situation:any){
@@ -35,7 +30,7 @@ export function getMaterialAbbrById(container:any,id:any,date:any,origin:any,sit
     const dateParsed=new Date(date);
     console.log("The date used",dateParsed)
     if(Object.keys(container).length>0 && id.length>0){
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.id==id;
         })
         
@@ -49,7 +44,7 @@ export function getMaterialAbbrById(container:any,id:any,date:any,origin:any,sit
 export function getExternalIDById(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.id==id;
         })
         
@@ -89,7 +84,7 @@ export function getConstructionSiteById(container:any,id:any){
 export function getWaysById(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        const constructionSite=container.filter((element:any,index:number)=>{
+        const constructionSite=container.filter((element:any )=>{
             return element.id==id;
         })
         
@@ -103,7 +98,7 @@ export function getWaysById(container:any,id:any){
 export function getMaterialByCode(container:any,code:any){
     console.log("The probable problem source is: entered")
     if(Object.keys(container).length>0 && code.length>0){
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.materialCode==code;
         })
         return material[0].materialExternalID
@@ -115,7 +110,7 @@ export function getMaterialByCode(container:any,code:any){
 export function getMaterialObjectByCode(container:any,code:any){
     console.log("The probable problem source is: entered")
     if(Object.keys(container).length>0 && code.length>0){
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.materialCode==code;
         })
         return material[0]
@@ -127,7 +122,7 @@ export function getMaterialObjectByCode(container:any,code:any){
 export function getMaterialIDByCode(container:any,code:any){
     
     if(Object.keys(container).length>0 && code.length>0){
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.materialCode==code;
         })
         return material[0].materialId
@@ -140,7 +135,7 @@ export function getMaterialIDByCode(container:any,code:any){
 export function getTrialByID(container:any,id:any){
     
     if(Object.keys(container).length>0 && id.length>0){
-        const trials=container.filter((element:any,index:number)=>{
+        const trials=container.filter((element:any )=>{
             return element.id==id;
         })
         console.log("The trials oooooo",trials[0])
@@ -155,7 +150,7 @@ export function getTrialsByCode(container:any,code:any){
    
     if(Object.keys(container).length>0 && code.length>0){
 
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.materialCode==code;
         })
         if(material[0]==undefined){
@@ -173,7 +168,7 @@ export function getTrialsByCode(container:any,code:any){
 export function getExternalIDByAbbr(container:any,abbr:any){
     
     if(Object.keys(container).length>0 && abbr.length>0){
-        const material=container.filter((element:any,index:number)=>{
+        const material=container.filter((element:any )=>{
             return element.abbreviation==abbr;
         })
         
@@ -188,7 +183,7 @@ export function checkValidCode(container:any,code:any){
     console.log("the container in check Valid Code-->",container);
     console.log("the code",code);
 
-    const material=container.filter((element:any,index:number)=>{
+    const material=container.filter((element:any )=>{
         return element.materialCode==code
     })
 
@@ -197,5 +192,13 @@ export function checkValidCode(container:any,code:any){
     }else{
         return false
     }
+}
+
+export function encodePassword(password:string){
+    //const salt=main.salt;
+    //console.log("The salt: ",salt)
+    const p64=Base64.encode(password);
+    //const s64=Base64.encode(salt);
+    return p64;
 }
 

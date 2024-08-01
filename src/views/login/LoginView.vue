@@ -9,6 +9,7 @@
     import {useTranslation} from "i18next-vue";
     import { fetchNotifications } from '@/services/notificationsServices';
     import { useNotifStore } from '@/stores/notifications';
+import { useAuthStore } from '@/stores/auth';
 
 export default{
     created () {
@@ -19,6 +20,7 @@ export default{
         const {i18next,t}=useTranslation();
 
         const userStore=useUserSTore()
+        const authStore=useAuthStore()
         const credentialsStore=useKeyStore()
         const sessionStore=useSessionStore()
         const notifcationsStore=useNotifStore();
@@ -42,7 +44,7 @@ export default{
             }
         }
         onMounted(()=>{
-            
+            console.log("************ %s ***********:%s", "App mounted",i18next.language)
         })
 
 
@@ -50,28 +52,30 @@ export default{
             router.push(route);
         }
         async function validateForm(){
-            
             const {valid}=await form.value.validate()
-           if(valid){
-            loggingIn.value=true
-            const serviceResponse=await logUserIn(username.value,password.value)
-            userStore.reset()
-            credentialsStore.reset()
-            if(serviceResponse.response.status==200){
-                badCredentials.value=false
-                userStore.setUsername(serviceResponse.user.username)
-                credentialsStore.setUserInfos(serviceResponse.user)
-                sessionStore.setSession(true)
-                loggingIn.value=false
-                const notificationsResponse=await fetchNotifications(username.value);
-                notifcationsStore.setContent(notificationsResponse)
-                router.push('/')
-            }else{
-                badCredentials.value=true
-                loggingIn.value=false
-                snackBarText.value=t("forms.badCredentials")
-                snackBarVisibility.value=true
-            }
+            if(valid){
+                loggingIn.value=true
+                const serviceResponse=await logUserIn(username.value,password.value)
+                if(serviceResponse.status==200){
+                    console.log("The username: ",serviceResponse.user.username)
+                    badCredentials.value=false
+                    userStore.setUsername(serviceResponse.user.username)
+                    credentialsStore.setUserInfos(serviceResponse.user)
+                    sessionStore.setSession(true)
+                    authStore.setCredential(serviceResponse.authCredential)
+                    loggingIn.value=false
+                    const notificationsResponse=await fetchNotifications(username.value,serviceResponse.authCredential);
+                    notifcationsStore.setContent(notificationsResponse)
+                    router.push('/')
+                }else{
+                    badCredentials.value=true;
+                    loggingIn.value=false;
+                    snackBarText.value=t("forms.badCredentials");
+                    snackBarVisibility.value=true;
+                    userStore.reset();
+                    credentialsStore.reset();
+                    authStore.reset();
+                }
            }
         }
         return{
@@ -139,7 +143,7 @@ export default{
                 placeholder="Enter your username"
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
-                :rules="[v=>!!v||$t('alerts.usernameRequired')]"
+                :rules="[(v:any)=>!!v||$t('alerts.usernameRequired')]"
                 required
                 :onkeydown="(event:any)=>{
                    if(event.code=='Enter'){
@@ -153,7 +157,7 @@ export default{
                 :type="type"
                 v-model="password"
                 :label="$t('forms.password')"
-                :rules="[v=>!!v||$t('alerts.passwordRequired')]"
+                :rules="[(v:any)=>!!v||$t('alerts.passwordRequired')]"
                 prepend-inner-icon="mdi-lock-outline"
                 :append-inner-icon="passwordVisible?'mdi-eye-outline':'mdi-eye-off-outline'"
                 placeholder="Enter your password"

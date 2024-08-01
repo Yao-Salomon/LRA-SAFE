@@ -9,6 +9,7 @@ import {useSessionStore} from '@/stores/session'
 import {logUserOut} from '@/services/loginServices'
 import {useKeyStore} from '@/stores/userDetails';
 import { fetchNotifications } from './services/notificationsServices';
+import { useAuthStore } from './stores/auth';
 
 export default {
   created () {
@@ -18,6 +19,7 @@ export default {
       const drawer =ref(true);
       const router=useRouter();
       const userStore=useUserSTore();
+      const authStore=useAuthStore();
       const credentialsStore=useKeyStore();
       const tokenStore=useTokenStore();
       const sessionStore=useSessionStore();
@@ -27,6 +29,7 @@ export default {
 
       const tokenJson=computed(()=>tokenStore.getToken)
       const username=computed(()=>userStore.getUsername)
+      const auth=computed(()=>authStore.getCredential)
       const session=computed(()=>sessionStore.getSession)
       const credentials=computed(()=>credentialsStore.getUserInfos)
       const notifications:any=computed(()=>notifcationsStore.getContent)
@@ -52,7 +55,7 @@ export default {
       })
 
       async function logout(){
-        const response=await logUserOut(username.value)
+        const response=await logUserOut(username.value,auth.value)
         if(response.status==200){
           userStore.reset()
           sessionStore.reset()
@@ -81,11 +84,12 @@ export default {
       }
       
       onMounted(async ()=>{
+        console.log("************ %s ***********", "App mounted")
         pageLoading.value=true;
-        const notificationsResponse=await fetchNotifications(username.value);
-        notifcationsStore.setContent(notificationsResponse);
-
-        const session=await checkSessionValidity(username.value);
+        
+        console.log("The parameter used for session: ",username.value,auth.value);
+        const session=await checkSessionValidity(username.value,auth.value);
+        console.log("The session fetched: ",session)
         if(session==undefined){
           router.push('/404')
         }
@@ -100,7 +104,8 @@ export default {
           notifcationsStore.reset()
           router.push('/login')
         }
-
+        const notificationsResponse=await fetchNotifications(username.value,auth.value);
+        notifcationsStore.setContent(notificationsResponse);
         pageLoading.value=false;
         console.log("The notifications are : ",notifications.value)
       })

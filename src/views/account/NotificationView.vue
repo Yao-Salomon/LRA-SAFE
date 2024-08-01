@@ -4,11 +4,13 @@ import { useUserSTore } from '@/stores/user';
 import { useNotifStore } from '@/stores/notifications';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
     export default{
         setup(){
 
             const route=useRoute();
             const userStore=useUserSTore();
+            const authStore=useAuthStore();
             const notifcationsStore=useNotifStore();
 
             const pageLoading=ref(true);
@@ -16,20 +18,22 @@ import { useRoute } from 'vue-router';
             const snackbarText=ref('')
 
             const username=computed(()=>userStore.getUsername);
+            const auth=computed(()=>authStore.getCredential);
+
             const notifications:any=computed(()=>notifcationsStore.getContent)
 
             async function treatNotifications(notificationId:any,markAsRead:any){
-                const response=await markAsReadOrArchived(notificationId,markAsRead)
+                const response=await markAsReadOrArchived(notificationId,markAsRead,auth.value)
                 snackbar.value=true
                 snackbarText.value=response.message
                 pageLoading.value=true
-                const notificationsResponse=await fetchNotifications(username.value);
+                const notificationsResponse=await fetchNotifications(username.value,auth.value);
                 notifcationsStore.setContent(notificationsResponse);
                 pageLoading.value=false;
             }
 
             onMounted(async ()=>{
-                const notificationsResponse=await fetchNotifications(username.value);
+                const notificationsResponse=await fetchNotifications(username.value,auth.value);
                 notifcationsStore.setContent(notificationsResponse);
                 pageLoading.value=false;
             })

@@ -5,6 +5,7 @@
     import { fetchCommands } from '@/services/commandServices';
     import { useUserSTore } from '@/stores/user';
     import { getFileByRef } from '@/services/reportingServices';
+import { useAuthStore } from '@/stores/auth';
 
 
     Chart.register(...registerables);
@@ -12,8 +13,10 @@
         name:'DashboardComponent',
         components:{BarChart},
         setup(){
-            const userStore=useUserSTore()
-            const username=computed(()=>userStore.getUsername)
+            const userStore=useUserSTore();
+            const authStore=useAuthStore();
+            const username=computed(()=>userStore.getUsername);
+            const auth=computed(()=>authStore.getCredential)
             const pageLoading=ref(true)
             const commands:any=ref([])
             const reference:any=ref('')
@@ -45,7 +48,7 @@
             async function showOrderReceipt(fileRef:any){
                 
                 pageLoading.value=true
-                const fileResponse=await getFileByRef(encodeURIComponent(fileRef));
+                const fileResponse=await getFileByRef(encodeURIComponent(fileRef),auth.value);
                 var blob = new Blob([fileResponse], {
                 type: 'application/pdf',
                 });
@@ -62,7 +65,7 @@
                 link.remove();
             }
             onMounted(async ()=>{
-                const commandResponse=await fetchCommands(username.value)
+                const commandResponse=await fetchCommands(username.value,auth.value)
                 commandResponse.sort((a:any,b:any)=>{
                     let dateA=new Date(a.createdDate);
                     let dateB=new Date(b.createdDate);

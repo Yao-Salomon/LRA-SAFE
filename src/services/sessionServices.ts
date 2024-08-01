@@ -15,23 +15,21 @@ const data = QueryString.stringify({
 });
 
 
-const config = {
-  method: 'post',
-  maxBodyLength: Infinity,
-  url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-  headers: { 
-    'Content-Type': 'application/x-www-form-urlencoded', 
-    'Authorization': 'Basic emhkZm14YWZxZzppanVJY2dlWGNy',
-  },
-  data : data
-};
-
-
-
-export async function checkSessionValidity(username:string){
+export async function checkSessionValidity(username:string,auth:string){
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+      headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded', 
+        'Authorization': 'Basic '+auth,
+      },
+      data : data
+    };
 
     const response=axios.request(config)
     .then((response) => {
+        console.log("The main response in the session: ",response)
         const token=response.data.access_token
         const expiring_date=JSON.stringify(response.data.expires_in)
         
@@ -43,9 +41,9 @@ export async function checkSessionValidity(username:string){
             'Authorization': `Bearer ${token}`
           } 
         };
-        
        const responses =axios.request(configSession)
         .then((object) => {
+          console.log("The result of the main fetch: ",object)
           return object.data
         })
         .catch((error) => {

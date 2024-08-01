@@ -1,7 +1,5 @@
 import axios from "axios";
 import QueryString from "qs";
-import { useSessionStore } from "../stores/session";
-import { useUserSTore } from "../stores/user";
 import main from "@/constants/main";
 
 
@@ -17,32 +15,29 @@ const TRAIL_URL_SITES='/rest/services/lab_APIServices/fetchConstructionSites'
 const TRAIL_URL_SITUATION='/rest/services/lab_APIServices/fetchSituations'
 const TRAIL_URL_CREATION='/rest/services/lab_APIServices/createCommand'
 
-let data = QueryString.stringify({
+const data = QueryString.stringify({
   'grant_type': 'client_credentials' 
 });
 
-
-let config = {
-  method: 'post',
-  maxBodyLength: Infinity,
-  url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-  headers: { 
-    'Content-Type': 'application/x-www-form-urlencoded', 
-    'Authorization': 'Basic emhkZm14YWZxZzppanVJY2dlWGNy',
-  },
-  data : data
-};
-
-export async function fetchCommands(username:string){
-    
+export async function fetchCommands(username:string,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataParameters = {
+       const token=response.data.access_token
+       const dataParameters = {
            "username": username,
          };
          
-       let configParameter = {
+       const configParameter = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_COMMAND:PROD_URL+TRAIL_URL_COMMAND,
@@ -62,24 +57,33 @@ export async function fetchCommands(username:string){
        });
        return responses;
    })
-   .catch((error) => {
-
+   .catch(() => {
+    //
    });
 
    return response;
 
 }
 
-export async function fetchDraftedCommand(username:string){
-    
+export async function fetchDraftedCommand(username:string,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
    const response=await  axios.request(config)
     .then((response) => {
-        let token=response.data.access_token
-        let dataParameters = {
+        const token=response.data.access_token
+        const dataParameters = {
             "username": username,
           };
           
-        let configParameter = {
+        const configParameter = {
         method: 'post',
         maxBodyLength: Infinity,
         url: DEBUG?DEBUG_URL+TRAIL_URL_DRAFTED:PROD_URL+TRAIL_URL_DRAFTED,
@@ -99,24 +103,33 @@ export async function fetchDraftedCommand(username:string){
         });
         return responses;
     })
-    .catch((error) => {
-
+    .catch(() => {
+      //
     });
 
     return response;
 
 }
 
-export async function manageDraftedCommand(commandId:string){
-    
+export async function manageDraftedCommand(commandId:string,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
     const response=await  axios.request(config)
      .then((response) => {
-         let token=response.data.access_token
-         let dataParameters = {
+         const token=response.data.access_token
+         const dataParameters = {
              "commandId": commandId,
            };
            
-         let configParameter = {
+         const configParameter = {
          method: 'post',
          maxBodyLength: Infinity,
          url: DEBUG?DEBUG_URL+TRAIL_URL_MANAGE_DRAFTED:PROD_URL+TRAIL_URL_MANAGE_DRAFTED,
@@ -136,21 +149,30 @@ export async function manageDraftedCommand(commandId:string){
          });
          return responses;
      })
-     .catch((error) => {
-        
+     .catch(() => {
+        //
      });
  
      return response;
  
 }
 
-export async function loadMTLs(){
-    
+export async function loadMTLs(auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
     const response=await  axios.request(config)
      .then((response) => {
-         let token=response.data.access_token
+         const token=response.data.access_token
            
-         let configParameter = {
+         const configParameter = {
          method: 'post',
          maxBodyLength: Infinity,
          url: DEBUG?DEBUG_URL+TRAIL_URL_MTLS:PROD_URL+TRAIL_URL_MTLS,
@@ -169,7 +191,7 @@ export async function loadMTLs(){
          });
          return responses;
      })
-     .catch((error) => {
+     .catch(() => {
         
      });
  
@@ -177,16 +199,25 @@ export async function loadMTLs(){
  
 }
 
-export async function fetchConstructionSites(username:string){
-    
+export async function fetchConstructionSites(username:string,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataParameters = {
+       const token=response.data.access_token
+       const dataParameters = {
            "username": username,
          };
          
-       let configParameter = {
+       const configParameter = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_SITES:PROD_URL+TRAIL_URL_SITES,
@@ -206,21 +237,30 @@ export async function fetchConstructionSites(username:string){
        });
        return responses;
    })
-   .catch((error) => {
-
+   .catch(() => {
+    //
    });
 
    return response;
 
 }
 
-export async function loadSituations(){
-    
+export async function loadSituations(auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
+       const token=response.data.access_token
          
-       let configParameter = {
+       const configParameter = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_SITUATION:PROD_URL+TRAIL_URL_SITUATION,
@@ -239,25 +279,35 @@ export async function loadSituations(){
        });
        return responses;
    })
-   .catch((error) => {
-      
+   .catch(() => {
+      //
    });
 
    return response;
 
 }
 
-export async function createCommand(username:string,constructionSite:any,command:any){
+export async function createCommand(username:string,constructionSite:any,command:any,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
-       let token=response.data.access_token
-       let dataParameters = {
+       const token=response.data.access_token
+       const dataParameters = {
           "username":username,
           "constructionSite":constructionSite,
           "command":command
          };
          
-       let configParameter = {
+       const configParameter = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_CREATION:PROD_URL+TRAIL_URL_CREATION,
@@ -277,8 +327,8 @@ export async function createCommand(username:string,constructionSite:any,command
        });
        return responses;
    })
-   .catch((error) => {
-
+   .catch(() => {
+    //
    });
 
    return response;

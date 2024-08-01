@@ -20,6 +20,7 @@ watch(
   (state) => {
     localStorage.setItem("username", JSON.stringify(state.user));
     localStorage.setItem("userInfos",JSON.stringify(state.userDetails));
+    localStorage.setItem("credential",JSON.stringify(state.auth));
   },
   { deep: true }
 );

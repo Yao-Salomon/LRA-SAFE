@@ -18,21 +18,17 @@ const data = QueryString.stringify({
 });
 
 
-const config = {
-  method: 'post',
-  maxBodyLength: Infinity,
-  url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-  headers: { 
-    'Content-Type': 'application/x-www-form-urlencoded', 
-    'Authorization': 'Basic emhkZm14YWZxZzppanVJY2dlWGNy',
-  },
-  data : data
-};
-
-
-
-export async function getReportId(username:string){
-    
+export async function getReportId(username:string,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
    const response=await  axios.request(config)
     .then((response) => {
         const token=response.data.access_token
@@ -76,8 +72,17 @@ export async function getReportId(username:string){
 
 }
 
-export async function runReport(reportId:string,parameters:any){
-    
+export async function runReport(reportId:string,parameters:any,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
        const token=response.data.access_token
@@ -124,8 +129,17 @@ export async function runReport(reportId:string,parameters:any){
 
 }
 
-export async function getTDRReportId(username:string){
-    
+export async function getTDRReportId(username:string,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
        const token=response.data.access_token
@@ -169,8 +183,17 @@ export async function getTDRReportId(username:string){
 
 }
 
-export async function runTDRReport(reportId:string,parameters:any){
-    
+export async function runTDRReport(reportId:string,parameters:any,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
        const token=response.data.access_token
@@ -217,8 +240,17 @@ export async function runTDRReport(reportId:string,parameters:any){
 
 }
 
-export async function getFileByRef(fileRef:any){
-    
+export async function getFileByRef(fileRef:any,auth:string){
+  const config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Basic '+auth,
+    },
+    data : data
+  };
   const response=await  axios.request(config)
    .then((response) => {
        const token=response.data.access_token

@@ -1,14 +1,15 @@
 <script lang="ts">
     import { ref } from 'vue'
     import {useTranslation} from "i18next-vue";
-    import {fetchDraftedCommand,manageDraftedCommand,loadMTLs, fetchConstructionSites, loadSituations, createCommand} from "@/services/commandServices";
+    import {loadMTLs, fetchConstructionSites, loadSituations, createCommand} from "@/services/commandServices";
     import {checkValidCode, filterArrayUnique, getAbbrById, getConstructionSiteById, getExternalIDByAbbr, getExternalIDById, getMaterialAbbrById, getMaterialByCode, getMaterialIDByCode, getTrialsByCode,getTrialByID,getMaterialObjectByCode, getWaysById} from "@/utils"
     import { computed } from 'vue';
 
     import { onMounted } from 'vue';
     import { useUserSTore } from '@/stores/user';
-    import { useRoute,useRouter } from 'vue-router';
+    import { useRouter } from 'vue-router';
     import {  getTDRReportId, runTDRReport } from '@/services/reportingServices';
+import { useAuthStore } from '@/stores/auth';
 
 export default{
 
@@ -48,14 +49,15 @@ export default{
         
         const finalMaterialWithTrials:any=ref([])
 
-        const location=useRoute()
 
         const draft:any=ref({})
         const mtls:any=ref([])
 
         const userStore=useUserSTore()
+        const authStore=useAuthStore()
 
         const username=computed(()=>userStore.getUsername)
+        const auth=computed(()=>authStore.getCredential)
         const addBtnActive=computed(()=>currentBoxFieldValue.value&&currentSituation.value.length>0&&currentDatePrelevement.value.length>0&&currentOrigine.value.length>0&&currentDetails.value.length>0)
         const addBtnToFinalActive=computed(()=>materialToMapTrial.value&&selectedTrials.value.length>0)
         const listOfTrials=computed(()=>fetchTrialsRM(materialToMapTrial.value))
@@ -226,7 +228,7 @@ export default{
         function validateFinalList(){
             if(finalMaterialWithTrials.value.length>0){
                 let valid=true
-                finalMaterialWithTrials.value.forEach((element:any,index:any) => {
+                finalMaterialWithTrials.value.forEach((element:any) => {
                     if(element.trials.length==0){
                         valid&&=false
                     }else{
@@ -276,7 +278,7 @@ export default{
         }
         async function creationComplete(){
             pageLoading.value=true
-            const commandCreation=await createCommand(username.value,selectedConstructionSite.value,finalMaterialWithTrials.value);
+            const commandCreation=await createCommand(username.value,selectedConstructionSite.value,finalMaterialWithTrials.value,auth.value);
             pageLoading.value=false
             console.log(commandCreation)
             
@@ -292,8 +294,8 @@ export default{
 
         async function launchTDRReport(){
             reportLoading.value=true
-            const response = await getTDRReportId(username.value);
-            const fileResponse=await runTDRReport(response,[{'name':'site' ,'value':selectedConstructionSite.value}]);
+            const response = await getTDRReportId(username.value,auth.value);
+            const fileResponse=await runTDRReport(response,[{'name':'site' ,'value':selectedConstructionSite.value}],auth.value);
           
             var blob = new Blob([fileResponse], {
             type: 'application/pdf',
@@ -316,13 +318,12 @@ export default{
 
 
         onMounted(async()=>{
-
+            console.log("************ %s ***********", "Order View mounted")
             pageLoading.value=true
 
-            const drafted=await fetchDraftedCommand(username.value)
-            const mtlsLoaded=await loadMTLs()
-            const situationsLoaded=await loadSituations()
-            constructionSites.value=await fetchConstructionSites(username.value);
+            const mtlsLoaded=await loadMTLs(auth.value)
+            const situationsLoaded=await loadSituations(auth.value)
+            constructionSites.value=await fetchConstructionSites(username.value,auth.value);
             situations.value=situationsLoaded
         
             
