@@ -91,7 +91,7 @@ export default {
         const session=await checkSessionValidity(username.value,auth.value);
         console.log("The session fetched: ",session)
         if(session==undefined){
-          router.push('/404')
+          router.push('/login')
         }
         if(session.status==200){
           sessionStore.setSession(true)
