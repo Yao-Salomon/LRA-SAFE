@@ -90,10 +90,8 @@ export default {
         console.log("The parameter used for session: ",username.value,auth.value);
         const session=await checkSessionValidity(username.value,auth.value);
         console.log("The session fetched: ",session)
-        if(session==undefined){
-          router.push('/login')
-        }
-        if(session.status==200){
+        
+        if(session!=undefined && session.status==200){
           sessionStore.setSession(true)
           console.log("case session Valid")
           router.push('/')
