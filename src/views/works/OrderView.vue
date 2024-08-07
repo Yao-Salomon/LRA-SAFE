@@ -320,24 +320,25 @@ export default{
         onMounted(async()=>{
             console.log("************ %s ***********", "Order View mounted")
             pageLoading.value=true
-
-            const mtlsLoaded=await loadMTLs(auth.value)
-            const situationsLoaded=await loadSituations(auth.value)
-            constructionSites.value=await fetchConstructionSites(username.value,auth.value);
-            situations.value=situationsLoaded
-        
-            
-            mtls.value=mtlsLoaded
-            mtlsMappedMaterial=mtlsLoaded.map((e:any,index:any)=>{
-                return {
-                    index:index,
-                    id:e.material.id,
-                    externalID:e.material.externalID,
-                    materialSection:e.material.section,
-                    materialAbbreviation:e.material.abbreviation,
-                }
-            })
-            uniquesMappedMaterial.value=filterArrayUnique(mtlsMappedMaterial);
+            if(username.value&&auth.value){
+                const mtlsLoaded=await loadMTLs(auth.value)
+                const situationsLoaded=await loadSituations(auth.value)
+                constructionSites.value=await fetchConstructionSites(username.value,auth.value);
+                situations.value=situationsLoaded
+                mtls.value=mtlsLoaded
+                mtlsMappedMaterial=mtlsLoaded.map((e:any,index:any)=>{
+                    return {
+                        index:index,
+                        id:e.material.id,
+                        externalID:e.material.externalID,
+                        materialSection:e.material.section,
+                        materialAbbreviation:e.material.abbreviation,
+                    }
+                })
+                uniquesMappedMaterial.value=filterArrayUnique(mtlsMappedMaterial);
+            }else{
+                router.push("/login");
+            }
             pageLoading.value=false
 
         })

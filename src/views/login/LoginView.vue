@@ -9,7 +9,7 @@
     import {useTranslation} from "i18next-vue";
     import { fetchNotifications } from '@/services/notificationsServices';
     import { useNotifStore } from '@/stores/notifications';
-import { useAuthStore } from '@/stores/auth';
+    import { useAuthStore } from '@/stores/auth';
 
 export default{
     created () {
@@ -44,7 +44,7 @@ export default{
             }
         }
         onMounted(()=>{
-            console.log("************ %s ***********:%s", "App mounted",i18next.language)
+            console.log("************ %s *********** with language: %s", "Login Mounted",i18next.language)
         })
 
 

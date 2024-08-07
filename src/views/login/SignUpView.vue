@@ -1,13 +1,26 @@
 <script lang="ts">
-    import {onMounted, ref} from "vue";
+    import router from "@/router";
+import { useAuthStore } from "@/stores/auth";
+import { useUserSTore } from "@/stores/user";
+import {computed, onMounted, ref} from "vue";
 
     export default{
         setup(){
             const pageLoading=ref(false);
             const submittingForm=ref(false);
+            const userStore=useUserSTore();
+            const authStore=useAuthStore();
+            const username=computed(()=>userStore.getUsername)
+            const auth=computed(()=>authStore.getCredential)
             
             onMounted(()=>{
+                console.log("************ %s *********** with language: %s", "Logout")
 
+                if(username.value&&auth.value){
+                    //
+                }else{
+                    router.push("/login")
+                }
             })
 
             return{

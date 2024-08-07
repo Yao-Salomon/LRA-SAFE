@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { ref,computed,onMounted } from 'vue';
 import {checkSessionValidity} from '@/services/sessionServices';
-import { useTokenStore } from '@/stores/token';
 import { useUserSTore } from '@/stores/user';
 import { useNotifStore } from '@/stores/notifications';
 import {useSessionStore} from '@/stores/session'
@@ -10,6 +9,8 @@ import {logUserOut} from '@/services/loginServices'
 import {useKeyStore} from '@/stores/userDetails';
 import { fetchNotifications } from './services/notificationsServices';
 import { useAuthStore } from './stores/auth';
+import { useTranslation } from 'i18next-vue';
+import { fetchToken } from './services/tokenService';
 
 export default {
   created () {
@@ -21,13 +22,11 @@ export default {
       const userStore=useUserSTore();
       const authStore=useAuthStore();
       const credentialsStore=useKeyStore();
-      const tokenStore=useTokenStore();
       const sessionStore=useSessionStore();
       const notifcationsStore=useNotifStore();
       const pageLoading=ref(false);
+      const {i18next,t}=useTranslation();
 
-
-      const tokenJson=computed(()=>tokenStore.getToken)
       const username=computed(()=>userStore.getUsername)
       const auth=computed(()=>authStore.getCredential)
       const session=computed(()=>sessionStore.getSession)
@@ -58,13 +57,15 @@ export default {
         const response=await logUserOut(username.value,auth.value)
         if(response.status==200){
           userStore.reset()
+          authStore.reset()
           sessionStore.reset()
           credentialsStore.reset()
           notifcationsStore.reset()
+          localStorage.removeItem("token")
           router.push('/login')
         }else{
           alert('erreur')
-          // je dois afficher un snackar ici
+          // je dois afficher un snackbar ici
         }
       }
       
@@ -82,30 +83,40 @@ export default {
           router.push("/login")
         }
       }
+      function changeLanguage(lang:string){
+        i18next.changeLanguage(lang);
+      }
       
       onMounted(async ()=>{
-        console.log("************ %s ***********", "App mounted")
+        console.log("************ %s *********** with parameters: %s , %s", "App mounted", username.value,auth.value)
+        
         pageLoading.value=true;
-        
-        console.log("The parameter used for session: ",username.value,auth.value);
-        const session=await checkSessionValidity(username.value,auth.value);
-        console.log("The session fetched: ",session)
-        
-        if(session!=undefined && session.status==200){
-          sessionStore.setSession(true)
-          console.log("case session Valid")
-          router.push('/')
+        if(username.value && auth.value){
+
+          const token=await fetchToken(auth.value);
+          console.log("The token used is: >>>",token);
+          const session=await checkSessionValidity(username.value,auth.value);
+          console.log("The session is :",session)
+
+          if(session!=undefined && session.status==200){
+            const notificationsResponse=await fetchNotifications(username.value,auth.value);
+            notifcationsStore.setContent(notificationsResponse);
+            sessionStore.setSession(true)
+            router.push('/')
+          }else{
+            sessionStore.setSession(false)
+            userStore.reset();
+            authStore.reset();
+            credentialsStore.reset();
+            notifcationsStore.reset();
+            localStorage.removeItem("token");
+            router.push('/login')
+          }
         }else{
-          sessionStore.setSession(false)
-          userStore.reset()
-          credentialsStore.reset()
-          notifcationsStore.reset()
-          router.push('/login')
+          router.push("/login")
         }
-        const notificationsResponse=await fetchNotifications(username.value,auth.value);
-        notifcationsStore.setContent(notificationsResponse);
         pageLoading.value=false;
-        console.log("The notifications are : ",notifications.value)
+
       })
 
       // expose to template and other options API hooks
@@ -113,7 +124,6 @@ export default {
         username,
         credentials,
         drawer,
-        tokenJson,
         userStore,
         session,
         avatar,
@@ -122,7 +132,8 @@ export default {
         pageLoading,
         router,
         moveTowardNotifications,
-        moveTo
+        moveTo,
+        changeLanguage,
       }
     },
   }
@@ -148,7 +159,7 @@ export default {
               size="small"
               @click="logout"
             >
-              Se déconnecter
+              {{$t("navigation.deconnect")}}
             </v-btn>
           </v-list-item>
         </v-list>
@@ -168,14 +179,14 @@ export default {
             prepend-icon="mdi-view-dashboard" 
             @click="moveTo('/dashboard')"
             value="dashboard">
-           Tableau de bord
+            {{$t("navigation.dashboard")}}
           </v-list-item>
           <v-list-item 
             key="reports"
             prepend-icon="mdi-chart-arc" 
             @click="moveTo('/reports')"
             value="reports">
-           Rapports & états
+            {{$t("navigation.reports")}}
           </v-list-item>
         </v-list>
     </v-navigation-drawer>
@@ -190,18 +201,61 @@ export default {
           @click="moveTo('/')"
           append-icon="mdi-road-variant"
         >
-          Labpro
+          {{ $t("UI.appName") }}
         </v-btn>
       </v-app-bar-title>
-      <v-btn icon v-if="notifications.length>0" @click="moveTowardNotifications()" >
+      <v-btn icon v-if="notifications&&notifications.length>0" @click="moveTowardNotifications()" >
         <v-badge color="deep-orange" :content="notifications.length">
           <v-icon color="deep-purple-lighten-5">mdi-bell</v-icon>
         </v-badge> 
       </v-btn> 
-      <v-spacer></v-spacer>    
+      <v-spacer></v-spacer>  
+        <v-menu>
+          <template v-slot:activator="{props}">
+              <div v-bind="props" class="avatar">
+                <v-img
+                  :width="20"
+                  :height="17"
+                  cover
+                  :src="$i18next.language+'.png'"
+                ></v-img>
+              </div>
+          </template>
+          <v-list>
+            <v-list-item
+              :key="1"
+              :value="1"
+            >
+              <div @click="changeLanguage('fr')" class="d-flex align-center justify-center">
+                <p class="mr-2">Français</p>
+                <v-img
+                  :width="20"
+                  :height="17"
+                  cover
+                  src="fr.png"
+                ></v-img>
+              </div>
+            </v-list-item>
+            <v-list-item
+              :key="2"
+              :value="2"
+            >
+              <div @click="changeLanguage('en')" class="d-flex align-center justify-center">
+                  <p class="mr-2">Anglais</p>
+                  <v-img
+                    :width="20"
+                    :height="17"
+                    cover
+                    src="en.png"
+                  ></v-img>
+                </div>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+        <v-spacer></v-spacer>  
         <v-menu v-if="session">
           <template v-slot:activator="{props}">
-            <v-avatar v-bind="props" id="avatar" color="white" class="mr-1" >
+            <v-avatar v-bind="props" color="white" class="mr-1 avatar" >
               <span class="text-h6">{{ avatar }}</span>
             </v-avatar>
           </template>
@@ -256,7 +310,7 @@ export default {
 </template>
 
 <style>
-#avatar{
+.avatar{
   cursor: pointer;
 }
 </style>

@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { useRouter } from 'vue-router';
+  import { useTranslation } from 'i18next-vue';
+import { useRouter } from 'vue-router';
 
   export default{
     setup(){
       const router=useRouter();
+      const {i18next,t}=useTranslation();
 
       function goToOrder(){
         router.push("order")
@@ -26,7 +28,7 @@
 
 
 <template>
-    <div class="d-flex w-100">
+    <div class="d-flex justify-center align-center w-100">
           <div class="d-flex flex-column overdrop mt-2 ml-12 px-5">
             <v-timeline >
               <v-timeline-item
@@ -38,10 +40,10 @@
                 <v-card>
                   <v-card-title class="bg-green d-fle">
                     <v-icon icon="mdi-seed-plus"/>
-                    <span class="text-body-1 ml-1">Passer une commande</span>
+                    <span class="text-body-1 ml-1">{{$t("timeline.commandTitle")}}</span>
                   </v-card-title>
                   <v-card-text>
-                    Votre processus commence par l'action de passer une nouvelle commande
+                    {{$t("timeline.commandMessage")}}
                   </v-card-text>
                   <v-card-actions class="">
                     <v-btn
@@ -50,7 +52,7 @@
                       prepend-icon="mdi-tag-plus"
                       @click="goToOrder"
                     >
-                      Commencer
+                      {{$t("timeline.commandAction")}}
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -64,11 +66,10 @@
                 <v-card>
                   <v-card-title class="bg-blue d-fle">
                     <v-icon icon="mdi-truck-fast"/>
-                    <span class="text-body-1 ml-1">Suivre la commande à chaque étape</span>
+                    <span class="text-body-1 ml-1">{{$t("timeline.dashboardTitle")}}</span>
                   </v-card-title>
                   <v-card-text>
-                      Votre commande est suivie à chaque étape
-                      de son traitement.
+                      {{$t("timeline.dashboardMessage")}}
                   </v-card-text>
                   <v-card-actions class="">
                     <v-btn
@@ -77,7 +78,7 @@
                       prepend-icon="mdi-view-dashboard"
                       @click="goToDashboard"
                     >
-                      Tableau de bord
+                    {{$t("timeline.dashboardAction")}}
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -91,11 +92,10 @@
                 <v-card>
                   <v-card-title class="bg-purple-lighten-2 d-fle">
                     <v-icon icon="mdi-chart-arc"/>
-                    <span class="text-body-1 ml-1"> Consulter vos rapports</span>
+                    <span class="text-body-1 ml-1"> {{$t("timeline.reportTitle")}}</span>
                   </v-card-title>
                   <v-card-text>
-                    Des états de commande sont générés au fil du traitement de
-                    votre commande.
+                    {{$t("timeline.reportMessage")}}
                   </v-card-text>
                   <v-card-actions>
                     <v-btn
@@ -104,7 +104,7 @@
                       prepend-icon="mdi-chart-scatter-plot"
                       @click="goToReports"
                     >
-                      Rapports & Etats
+                    {{$t("timeline.reportAction")}}
                     </v-btn>
                   </v-card-actions>
                 </v-card>

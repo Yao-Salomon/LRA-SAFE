@@ -1,6 +1,7 @@
 import axios from "axios";
 import QueryString from "qs";
 import main from "@/constants/main";
+import { fetchToken } from "./tokenService";
 
 
 const DEBUG=main.debug
@@ -17,19 +18,8 @@ const data = QueryString.stringify({
 });
 
 export async function fetchCls(username:string,auth:string){
-  const config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Basic '+auth,
-    },
-    data : data
-  };
-   const response=await  axios.request(config)
+   const response=await  fetchToken(auth)
     .then((response) => {
-        const token=response.data.access_token
         const dataParameters = {
             "username": username,
           };
@@ -39,7 +29,7 @@ export async function fetchCls(username:string,auth:string){
         maxBodyLength: Infinity,
         url: DEBUG?DEBUG_URL+TRAIL_URL_CL:PROD_URL+TRAIL_URL_CL,
         headers: { 
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${response}`
         },
         data : dataParameters
         };
@@ -63,19 +53,8 @@ export async function fetchCls(username:string,auth:string){
 }
 
 export async function markAsReadOrArchived(notificationID:any,markAsRead:any,auth:string){
-  const config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Basic '+auth,
-    },
-    data : data
-  };
-    const response=await  axios.request(config)
+    const response=await fetchToken(auth)
      .then((response) => {
-         const token=response.data.access_token
          const dataParameters = {
              "notificationID": notificationID,
              "markAsRead":markAsRead
@@ -86,7 +65,7 @@ export async function markAsReadOrArchived(notificationID:any,markAsRead:any,aut
          maxBodyLength: Infinity,
          url: DEBUG?DEBUG_URL+TRAIL_URL_NOTIFICATIONS_TREATMENT:PROD_URL+TRAIL_URL_NOTIFICATIONS_TREATMENT,
          headers: { 
-             'Authorization': `Bearer ${token}`
+             'Authorization': `Bearer ${response}`
          },
          data : dataParameters
          };
@@ -110,19 +89,8 @@ export async function markAsReadOrArchived(notificationID:any,markAsRead:any,aut
  }
 
  export async function fetchIndicators(username:string,auth:string){
-  const config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Basic '+auth,
-    },
-    data : data
-  };
-  const response=await  axios.request(config)
+  const response=await  fetchToken(auth)
    .then((response) => {
-       const token=response.data.access_token
        const dataParameters = {
            "username": username,
          };
@@ -132,7 +100,7 @@ export async function markAsReadOrArchived(notificationID:any,markAsRead:any,aut
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_INDICATORS:PROD_URL+TRAIL_URL_INDICATORS,
        headers: { 
-           'Authorization': `Bearer ${token}`
+           'Authorization': `Bearer ${response}`
        },
        data : dataParameters
        };

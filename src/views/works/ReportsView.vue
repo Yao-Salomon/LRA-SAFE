@@ -9,6 +9,7 @@
     import { Chart, registerables } from "chart.js";
     import {downloadFile} from "@/utils/download";
 import { useAuthStore } from '@/stores/auth';
+import router from '@/router';
     
     //Component list: LineChart,BarChart,PolarAreaChart,RadarChart,BubbleChart,ScatterChart
     Chart.register(...registerables);
@@ -58,17 +59,21 @@ import { useAuthStore } from '@/stores/auth';
             ]
 
             onMounted(async ()=>{
-                console.log("************ %s ***********", "Reports View mounted")
+                console.log("************ %s *********** with username: and auth:  ", "Reports View mounted",username.value,auth.value)
                 pageLoading.value=true;
-                cls.value=await fetchCls(username.value,auth.value);
-                commands.value=await fetchCommands(username.value,auth.value);
-                indicators.value=await fetchIndicators(username.value,auth.value);
-                chartData.value=[clsCSize.value,clsPSize.value,clsRSize.value,clsTSize.value,clsASize.value]
+                if(username.value &&auth.value){
+                    cls.value=await fetchCls(username.value,auth.value);
+                    commands.value=await fetchCommands(username.value,auth.value);
+                    indicators.value=await fetchIndicators(username.value,auth.value);
+                    chartData.value=[clsCSize.value,clsPSize.value,clsRSize.value,clsTSize.value,clsASize.value]
+                }else{
+                    router.push("/login");
+                }
                 pageLoading.value=false;
             })
 
             function downloadPv(fileResponse:any,title:string){
-                downloadFile(fileResponse,title)
+                downloadFile(fileResponse,title,auth.value)
             }
 
             return{

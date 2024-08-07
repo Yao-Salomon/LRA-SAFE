@@ -1,8 +1,8 @@
 import { getFileByRef } from "@/services/reportingServices";
 
 
-export async function downloadFile(fileRef:any,title:string){
-    const fileResponse=await getFileByRef(encodeURIComponent(fileRef));
+export async function downloadFile(fileRef:any,title:string,auth:string){
+    const fileResponse=await getFileByRef(encodeURIComponent(fileRef),auth);
     const blob = new Blob([fileResponse], {
         type: 'application/pdf',
         });

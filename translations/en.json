@@ -1,0 +1,43 @@
+{
+    "alerts":{
+      "passwordRequired":"The password is required",
+      "usernameRequired":"The username is required"
+    },
+    "forms":{
+          "signInButton":"SIGN IN",
+          "signUpButton":"SEND A REQUEST",
+          "username":"Username",
+          "password":"Password",
+          "badCredentials":"Your credentials are bad! Try again.",
+          "closeCaption":"Close"
+    },
+    "navigation":{
+      "account":"Your account",
+      "feedback":"Make a complaint",
+      "order":"New order",
+      "next":"NEXT",
+      "previous":"PREVIOUS",
+      "password":"Password",
+      "deconnect":"Logout",
+      "dashboard":"Dashboard",
+      "reports":"Reports"
+    },
+    "UI":{
+      "commandStepperFirst":"General Informations",
+      "commandStepperSecond":"Materials Setup",
+      "commandStepperThird":"Trials Setup",
+      "commandStepperFourth":"Validation",
+      "appName":"Labpro"
+    },
+    "timeline":{
+        "commandTitle":"Make an order",
+        "commandMessage":"Your process begins by making a new order",
+        "commandAction":"Begin",
+        "dashboardTitle":"Follow the order through each step",
+        "dashboardMessage":"Your order is followed through each step of its treatment.",
+        "dashboardAction":"Dashboard",
+        "reportTitle":"Read your reports",
+        "reportMessage":"Reports of the order are generated througout the treatment",
+        "reportAction":"Repports"
+    }
+  }

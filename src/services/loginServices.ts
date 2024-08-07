@@ -1,6 +1,6 @@
 import axios from "axios";
 import main from "@/constants/main";
-import QueryString from "qs";
+import { fetchToken } from "./tokenService";
 const DEBUG=main.debug
 const DEBUG_URL=main.urlDev
 const PROD_URL=main.urlProd
@@ -8,11 +8,6 @@ const TRAIL_URL_LOGIN='/rest/services/lab_APIServices/logUserIn'
 const TRAIL_URL_CHANGE_PASSWORD='/rest/services/lab_APIServices/logUserIn'
 const TRAIL_URL_UPDATE_USER='/rest/services/lab_APIServices/logUserIn'
 const TRAIL_URL_OUT='/rest/services/lab_APIServices/logUserOut'
-const TRAIL_URL='/oauth2/token'
-
-const data = QueryString.stringify({
-  'grant_type': 'client_credentials' 
-});
 
 export async function logUserIn(username:string,password:string){
       
@@ -37,30 +32,18 @@ export async function logUserIn(username:string,password:string){
 }
 
 export async function logUserOut(username:string,auth:string){
-  const config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Basic '+auth,
-    },
-    data : data
-  };
-
-  const response=await  axios.request(config)
+  
+  const response=await  fetchToken(auth)
    .then((response) => {
-       const token=response.data.access_token
        const dataLogout = {
            "username": username,
          };
-         
        const configLogin = {
        method: 'post',
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_OUT:PROD_URL+TRAIL_URL_OUT,
        headers: { 
-           'Authorization': `Bearer ${token}`
+           'Authorization': `Bearer ${response}`
        },
        data : dataLogout
        };
@@ -84,19 +67,8 @@ export async function logUserOut(username:string,auth:string){
 
 export async function updateUser(username:string,firstName:string,lastName:string,number:string,email:string,auth:string){
   
-  const config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Basic '+auth,
-    },
-    data : data
-  };
-  const response=await  axios.request(config)
+  const response=await  fetchToken(auth)
    .then((response) => {
-       const token=response.data.access_token
        const dataLoad = {
            "username": username,
            "firstName":firstName,
@@ -110,7 +82,7 @@ export async function updateUser(username:string,firstName:string,lastName:strin
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_UPDATE_USER:PROD_URL+TRAIL_URL_UPDATE_USER,
        headers: { 
-           'Authorization': `Bearer ${token}`
+           'Authorization': `Bearer ${response}`
        },
        data : dataLoad
        };
@@ -133,19 +105,8 @@ export async function updateUser(username:string,firstName:string,lastName:strin
 }
 
 export async function changePassword(username:string,password:string,auth:string){
-  const config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: DEBUG?DEBUG_URL+TRAIL_URL:PROD_URL+TRAIL_URL,
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Basic '+auth,
-    },
-    data : data
-  };
-  const response=await  axios.request(config)
+  const response=await  fetchToken(auth)
    .then((response) => {
-       const token=response.data.access_token
        const dataLoad = {
            "username": username,
            "password":password,
@@ -156,7 +117,7 @@ export async function changePassword(username:string,password:string,auth:string
        maxBodyLength: Infinity,
        url: DEBUG?DEBUG_URL+TRAIL_URL_CHANGE_PASSWORD:PROD_URL+TRAIL_URL_CHANGE_PASSWORD,
        headers: { 
-           'Authorization': `Bearer ${token}`
+           'Authorization': `Bearer ${response}`
        },
        data : dataLoad
        };

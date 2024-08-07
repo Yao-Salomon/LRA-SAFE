@@ -1,0 +1,46 @@
+{
+    "alerts":{
+        "passwordRequired":"Le mot de passe est requis",
+        "usernameRequired":"Le nom d'utilisateur est requis"
+    },
+    "forms":{
+        "signInButton":"SE CONNECTER",
+        "signUpButton":"FAIRE LA DEMANDE",
+        "username":"Nom d'utilisateur",
+        "password":"Mot de passe",
+        "badCredentials":"Vos idendifiants sont incorrects! Veuillez réessayer",
+        "closeCaption":"Fermer"
+    },
+    "navigation":{
+        "account":"Votre compte",
+        "feedback":"Emettre une plainte",
+        "order":"Nouvelle commande",
+        "next":"NEXT",
+        "previous":"PREVIOUS",
+        "password":"Mot de passe",
+        "deconnect":"Se déconnecter",
+        "dashboard":"Tableau de bord",
+        "reports":"Rapports & états"
+    },
+    "UI":{
+      "commandStepperFirst":"General Informations",
+      "commandStepperSecond":"Matériaux",
+      "commandStepperThird":"Essais",
+      "commandStepperFourth":"Finalisation",
+      "deconnect":"Logout",
+      "dashboard":"Dashboard",
+      "reports":"Reports",
+      "appName":"Labpro"
+    },
+    "timeline":{
+        "commandTitle":"Passer une commande",
+        "commandMessage":"Votre processus commence par l'action de passer une nouvelle commande",
+        "commandAction":"Commencer",
+        "dashboardTitle":"Suivre la commande à chaque étape",
+        "dashboardMessage":"Votre commande est suivie à chaque étape de son traitement",
+        "dashboardAction":"Tableau de bord",
+        "reportTitle":"Consulter vos rapports",
+        "reportMessage":"Des états de commande sont générés au fil du traitement de votre commande",
+        "reportAction":"Rapports & Etats"
+    }
+}
