@@ -30,6 +30,7 @@ export default{
         const snackbarText=ref('')
         const situations:any=ref([])
         const selectedMaterialCodes:any=ref([])
+        const today=ref("")
 
         let orderedMaterialList:any=[]
         let orderedMaterialWithTrials:any=[]
@@ -312,14 +313,19 @@ export default{
 
             reportLoading.value=false
             link.remove();
-
-            
         }
 
+        function formatDate(date:Date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         onMounted(async()=>{
             console.log("************ %s ***********", "Order View mounted")
             pageLoading.value=true
+            today.value=formatDate(new Date())
             if(username.value&&auth.value){
                 const mtlsLoaded=await loadMTLs(auth.value)
                 const situationsLoaded=await loadSituations(auth.value)
@@ -385,7 +391,8 @@ export default{
             validateFinalList,
             pageLoading,
             reportLoading,
-            currentDetails
+            currentDetails,
+            today
 
         }
     }
@@ -480,6 +487,7 @@ export default{
                             </v-select>
                             <v-text-field
                                 label="Date de  prélèvement"
+                                :max="today"
                                 type="date"
                                 v-model="currentDatePrelevement"
                             >

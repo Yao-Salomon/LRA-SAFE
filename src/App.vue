@@ -210,88 +210,88 @@ export default {
         </v-badge> 
       </v-btn> 
       <v-spacer></v-spacer>  
-        <v-menu>
-          <template v-slot:activator="{props}">
-              <div v-bind="props" class="avatar">
+      <v-menu>
+        <template v-slot:activator="{props}">
+            <div v-bind="props" class="avatar">
+              <v-img
+                :width="20"
+                :height="17"
+                cover
+                :src="$i18next.language+'.png'"
+              ></v-img>
+            </div>
+        </template>
+        <v-list>
+          <v-list-item
+            :key="1"
+            :value="1"
+          >
+            <div @click="changeLanguage('fr')" class="d-flex align-center justify-center">
+              <p class="mr-2">Français</p>
+              <v-img
+                :width="20"
+                :height="17"
+                cover
+                src="fr.png"
+              ></v-img>
+            </div>
+          </v-list-item>
+          <v-list-item
+            :key="2"
+            :value="2"
+          >
+            <div @click="changeLanguage('en')" class="d-flex align-center justify-center">
+                <p class="mr-2">Anglais</p>
                 <v-img
                   :width="20"
                   :height="17"
                   cover
-                  :src="$i18next.language+'.png'"
+                  src="en.png"
                 ></v-img>
               </div>
-          </template>
-          <v-list>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <v-spacer></v-spacer>  
+      <v-menu v-if="session">
+        <template v-slot:activator="{props}">
+          <v-avatar v-bind="props" color="white" class="mr-1 avatar" >
+            <span class="text-h6">{{ avatar }}</span>
+          </v-avatar>
+        </template>
+        <v-list>
             <v-list-item
               :key="1"
               :value="1"
+              prepend-icon="mdi-account-badge"
+              @click="moveTo('/account')"
+
             >
-              <div @click="changeLanguage('fr')" class="d-flex align-center justify-center">
-                <p class="mr-2">Français</p>
-                <v-img
-                  :width="20"
-                  :height="17"
-                  cover
-                  src="fr.png"
-                ></v-img>
-              </div>
+              <v-list-item-title>{{ $t('navigation.account') }}</v-list-item-title>
+            </v-list-item>
+            <v-divider></v-divider>
+            <v-list-item
+              :key="2"
+              :value="2"
+              prepend-icon="mdi-rss"
+              :link="true"
+              @click="moveTo('/feedback')"
+
+            >
+              <v-list-item-title >{{ $t('navigation.feedback') }}</v-list-item-title>
             </v-list-item>
             <v-list-item
               :key="2"
               :value="2"
+              prepend-icon="mdi-lock"
+              :link="true"
+              @click="moveTo('/password')"
+
             >
-              <div @click="changeLanguage('en')" class="d-flex align-center justify-center">
-                  <p class="mr-2">Anglais</p>
-                  <v-img
-                    :width="20"
-                    :height="17"
-                    cover
-                    src="en.png"
-                  ></v-img>
-                </div>
+              <v-list-item-title >{{ $t('navigation.password') }}</v-list-item-title>
             </v-list-item>
-          </v-list>
-        </v-menu>
-        <v-spacer></v-spacer>  
-        <v-menu v-if="session">
-          <template v-slot:activator="{props}">
-            <v-avatar v-bind="props" color="white" class="mr-1 avatar" >
-              <span class="text-h6">{{ avatar }}</span>
-            </v-avatar>
-          </template>
-          <v-list>
-              <v-list-item
-                :key="1"
-                :value="1"
-                prepend-icon="mdi-account-badge"
-                @click="moveTo('/account')"
-
-              >
-                <v-list-item-title>{{ $t('navigation.account') }}</v-list-item-title>
-              </v-list-item>
-              <v-divider></v-divider>
-              <v-list-item
-                :key="2"
-                :value="2"
-                prepend-icon="mdi-rss"
-                :link="true"
-                @click="moveTo('/feedback')"
-
-              >
-                <v-list-item-title >{{ $t('navigation.feedback') }}</v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                :key="2"
-                :value="2"
-                prepend-icon="mdi-lock"
-                :link="true"
-                @click="moveTo('/password')"
-
-              >
-                <v-list-item-title >{{ $t('navigation.password') }}</v-list-item-title>
-              </v-list-item>
-          </v-list>
-        </v-menu>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-main class="">
       <!-- style="background-image: url('./src/assets/road1.jpg'); background-size: contain;"-->

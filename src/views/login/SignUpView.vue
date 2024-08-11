@@ -16,11 +16,6 @@ import {computed, onMounted, ref} from "vue";
             onMounted(()=>{
                 console.log("************ %s *********** with language: %s", "Logout")
 
-                if(username.value&&auth.value){
-                    //
-                }else{
-                    router.push("/login")
-                }
             })
 
             return{

@@ -9,7 +9,8 @@
         "username":"Nom d'utilisateur",
         "password":"Mot de passe",
         "badCredentials":"Vos idendifiants sont incorrects! Veuillez réessayer",
-        "closeCaption":"Fermer"
+        "closeCaption":"Fermer",
+        "submit":"Soumettre"
     },
     "navigation":{
         "account":"Votre compte",
@@ -42,5 +43,9 @@
         "reportTitle":"Consulter vos rapports",
         "reportMessage":"Des états de commande sont générés au fil du traitement de votre commande",
         "reportAction":"Rapports & Etats"
+    },
+    "message":{
+        "userCreated":"L'utilisateur a été avec succès",
+        "creationError":"La mise à jour de votre profil avec succès"
     }
 }

@@ -6,7 +6,7 @@ const DEBUG_URL=main.urlDev
 const PROD_URL=main.urlProd
 const TRAIL_URL_LOGIN='/rest/services/lab_APIServices/logUserIn'
 const TRAIL_URL_CHANGE_PASSWORD='/rest/services/lab_APIServices/logUserIn'
-const TRAIL_URL_UPDATE_USER='/rest/services/lab_APIServices/logUserIn'
+const TRAIL_URL_UPDATE_USER='/rest/services/lab_APIServices/updateUser'
 const TRAIL_URL_OUT='/rest/services/lab_APIServices/logUserOut'
 
 export async function logUserIn(username:string,password:string){

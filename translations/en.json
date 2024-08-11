@@ -9,7 +9,8 @@
           "username":"Username",
           "password":"Password",
           "badCredentials":"Your credentials are bad! Try again.",
-          "closeCaption":"Close"
+          "closeCaption":"Close",
+          "submit":"Submit"
     },
     "navigation":{
       "account":"Your account",
@@ -39,5 +40,9 @@
         "reportTitle":"Read your reports",
         "reportMessage":"Reports of the order are generated througout the treatment",
         "reportAction":"Repports"
+    },
+    "message":{
+        "userCreated":"The user has been created with success",
+        "creationError":"The profil has been updated with success"
     }
   }
