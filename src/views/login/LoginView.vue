@@ -56,6 +56,7 @@ export default{
             if(valid){
                 loggingIn.value=true
                 const serviceResponse=await logUserIn(username.value,password.value)
+                
                 if(serviceResponse.status==200){
                     console.log("The username: ",serviceResponse.user.username)
                     badCredentials.value=false

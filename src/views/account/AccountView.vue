@@ -14,7 +14,7 @@ import { useAuthStore } from '@/stores/auth';
             const submittingForm=ref(false)
             const userStore=useUserSTore();
             const credentialsStore=useKeyStore();
-            const {i18next,t}=useTranslation();
+            const {t}=useTranslation();
             const authStore=useAuthStore();
             const snackbar=ref(false);
             const snackbarText=ref("");
@@ -49,6 +49,11 @@ import { useAuthStore } from '@/stores/auth';
                 if(updating.status==200){
                     snackbar.value=true;
                     snackbarText.value=t('message.userCreated');
+                    credentials.value.firstName=firstName.value;
+                    credentials.value.lastName=lastName.value;
+                    credentials.value.number=number.value;
+                    credentials.value.email=email.value;
+                    credentialsStore.setUserInfos(credentials);
                 }else{
                     snackbar.value=true;
                     snackbarText.value=t('message.creationError');

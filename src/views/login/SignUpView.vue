@@ -1,8 +1,7 @@
 <script lang="ts">
-    import router from "@/router";
-import { useAuthStore } from "@/stores/auth";
-import { useUserSTore } from "@/stores/user";
-import {computed, onMounted, ref} from "vue";
+    import { useAuthStore } from "@/stores/auth";
+    import { useUserSTore } from "@/stores/user";
+    import {computed, onMounted, ref} from "vue";
 
     export default{
         setup(){
@@ -15,7 +14,8 @@ import {computed, onMounted, ref} from "vue";
             
             onMounted(()=>{
                 console.log("************ %s *********** with language: %s", "Logout")
-
+                auth;
+                username;
             })
 
             return{
