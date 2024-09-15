@@ -10,7 +10,8 @@
           "password":"Password",
           "badCredentials":"Your credentials are bad! Try again.",
           "closeCaption":"Close",
-          "submit":"Submit"
+          "submit":"Submit",
+          "noAccount":"Pas encore de compte?"
     },
     "navigation":{
       "account":"Your account",

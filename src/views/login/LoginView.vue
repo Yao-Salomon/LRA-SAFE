@@ -106,7 +106,6 @@ export default{
         rounded
         max-width="600"
         width="100%"
-        
     >
     <v-card class="mr-1 bg-blue-accent-1 my-2" elevation="5">
         <v-img
@@ -193,7 +192,7 @@ export default{
                 {{ $t('forms.signInButton') }}
             </v-btn>
             <div class="d-flex justify-center align-center mt-5">
-                <span class="mr-2 font-weight-bold">Pas encore de compte ?</span>
+                <span class="mr-2 font-weight-bold">{{ $t('forms.noAccount') }}</span>
                 <v-btn
                     variant="tonal"
                     class=""

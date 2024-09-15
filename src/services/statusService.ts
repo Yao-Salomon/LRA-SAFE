@@ -1,5 +1,4 @@
 import axios from "axios";
-import QueryString from "qs";
 import main from "@/constants/main";
 import { fetchToken } from "./tokenService";
 
@@ -7,15 +6,10 @@ import { fetchToken } from "./tokenService";
 const DEBUG=main.debug
 const DEBUG_URL=main.urlDev
 const PROD_URL=main.urlProd
-const TRAIL_URL='/oauth2/token'
 const TRAIL_URL_CL='/rest/services/lab_APIServices/fetchCommandLines'
 const TRAIL_URL_NOTIFICATIONS_TREATMENT='/rest/services/lab_APIServices/markAsReadOrArchived'
 const TRAIL_URL_INDICATORS='/rest/services/lab_APIServices/fetchIndicators'
 
-
-const data = QueryString.stringify({
-  'grant_type': 'client_credentials' 
-});
 
 export async function fetchCls(username:string,auth:string){
    const response=await  fetchToken(auth)

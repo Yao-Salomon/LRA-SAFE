@@ -227,6 +227,7 @@ export default{
         }
 
         function validateFinalList(){
+            console.log(finalMaterialWithTrials)
             if(finalMaterialWithTrials.value.length>0){
                 let valid=true
                 finalMaterialWithTrials.value.forEach((element:any) => {
@@ -328,6 +329,7 @@ export default{
             today.value=formatDate(new Date())
             if(username.value&&auth.value){
                 const mtlsLoaded=await loadMTLs(auth.value)
+                console.log("The mtls are:",mtlsLoaded);
                 const situationsLoaded=await loadSituations(auth.value)
                 constructionSites.value=await fetchConstructionSites(username.value,auth.value);
                 situations.value=situationsLoaded
@@ -338,7 +340,7 @@ export default{
                         id:e.material.id,
                         externalID:e.material.externalID,
                         materialSection:e.material.section,
-                        materialAbbreviation:e.material.abbreviation,
+                        materialAbbreviation:e.material.code,
                     }
                 })
                 uniquesMappedMaterial.value=filterArrayUnique(mtlsMappedMaterial);
@@ -823,7 +825,7 @@ export default{
                             <v-card-item class="font-weight-bold d-flex justify-content-center align-items-center">
                                 <v-alert variant="outlined" color="green">
                                     <v-icon icon="mdi-domain" size="large" color="green-darken-2"></v-icon>
-                                    {{ item.materialCode }}
+                                    {{ item.situation }}
                                 </v-alert>
                             </v-card-item>
                             <v-card-item>

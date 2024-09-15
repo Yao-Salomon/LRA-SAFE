@@ -10,7 +10,8 @@
         "password":"Mot de passe",
         "badCredentials":"Vos idendifiants sont incorrects! Veuillez réessayer",
         "closeCaption":"Fermer",
-        "submit":"Soumettre"
+        "submit":"Soumettre",
+        "noAccount":"Pas encore de compte?"
     },
     "navigation":{
         "account":"Votre compte",

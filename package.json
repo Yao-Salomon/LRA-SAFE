@@ -23,6 +23,7 @@
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-vue": "^4.0.0",
     "js-base64": "^3.7.7",
+    "labpro": "file:",
     "pinia": "^2.1.7",
     "qs": "^6.11.2",
     "vue": "^3.4.15",

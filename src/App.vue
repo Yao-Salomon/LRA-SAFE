@@ -25,7 +25,7 @@ export default {
       const sessionStore=useSessionStore();
       const notifcationsStore=useNotifStore();
       const pageLoading=ref(false);
-      const {i18next,t}=useTranslation();
+      const {i18next}=useTranslation();
 
       const username=computed(()=>userStore.getUsername)
       const auth=computed(()=>authStore.getCredential)
