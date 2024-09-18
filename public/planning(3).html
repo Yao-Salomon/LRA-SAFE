@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
 <head>
-    <title> Bon de commande </title>
+    <title> Planning des essais</title>
     <style type="text/css">
     
     @page {
@@ -305,13 +305,19 @@
           </div>
           <div>
             <div class="left">
-              Le chargé des essais.
+              <p>Le chargé des essais.</p>
+              <div>
+                <img height="80px" src="${command.constructionSite.trialManager.signature.file}" alt="Chargé des essais"/>
+              </div>
             </div>
             <div class="right">
-              Le chef laboratoire.
+              <p>Le Responsable du laboratoire.</p>
+              <div>
+                <img height="80px" src="${command.constructionSite.workManager.signature.file}" alt="Responsable Laboratoire"/>
+              </div>
             </div>
           </div>
-          <div class="bellow" style="margin-top: 100px;">
+          <div class="bellow" style="margin-top: 200px;">
               Le laboratoire central de LRA vous remercie de votre confiance
           </div>
     </main>
